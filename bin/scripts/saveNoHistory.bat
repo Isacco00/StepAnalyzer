@@ -1,0 +1,1 @@
+curl -k https://localhost/forexSentiment/saveLastForexSentiment?isValidForHistory=false
