@@ -10,10 +10,10 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>forexSentiment</artifactId>
+	<artifactId>stepAnalyzer</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>forexSentiment</name>
-	<description>Forex Sentiment</description>
+	<name>stepAnalyzer</name>
+	<description>Step Analyzer</description>
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>
@@ -85,6 +85,11 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-csv</artifactId>
 			<version>1.8</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-multipart-provider</artifactId>
+			<version>3.0.19.Final</version>
 		</dependency>
 	</dependencies>
 
