@@ -5,7 +5,7 @@ import java.util.List;
 import stepanalyzer.bean.CurrencyBean;
 import stepanalyzer.request.bean.CurrencyRequestBean;
 
-public interface CurrencyManager {
+public interface StepConverterManager {
 
-	List<CurrencyBean> getCurrencyList(CurrencyRequestBean currencyRequestBean);
+    String fromStpToX3D();
 }

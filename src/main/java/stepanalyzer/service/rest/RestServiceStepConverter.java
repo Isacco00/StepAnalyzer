@@ -12,9 +12,9 @@ import stepanalyzer.bean.CurrencyBean;
 import stepanalyzer.request.bean.CurrencyRequestBean;
 
 @RestController
-@RequestMapping("/currency")
-public interface RestServiceCurrency {
+@RequestMapping("/stpConverter")
+public interface RestServiceStepConverter {
 
-	@GetMapping("/getCurrencyList")
-	public List<CurrencyBean> getCurrencyList(@BeanParam CurrencyRequestBean currencyRequestBean);
+	@GetMapping("/fromStpToX3D")
+	public String fromStpToX3D();
 }
