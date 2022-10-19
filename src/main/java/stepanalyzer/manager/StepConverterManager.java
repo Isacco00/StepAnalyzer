@@ -1,11 +1,13 @@
 package stepanalyzer.manager;
 
-import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
-import stepanalyzer.bean.CurrencyBean;
-import stepanalyzer.request.bean.CurrencyRequestBean;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 public interface StepConverterManager {
 
-    String fromStpToX3D();
+    String fromStpToX3D(MultipartFile inputStream) throws IOException, InterruptedException, ExecutionException, TimeoutException;
 }

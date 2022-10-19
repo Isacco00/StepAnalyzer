@@ -1,12 +1,5 @@
 package stepanalyzer.utility;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -47,12 +40,12 @@ public enum DateFormatEnum {
 
   public static List<DateFormatEnum> getAllowedExcelFormat() {
     return Arrays.asList(DDMMYYYY_SLASH, DDMMYYYY_HYPHEN, DDMMYYYY_SPACE, MMDDYYYY_SLASH, MMDDYYYY_HYPHEN, MMDDYYYY_SPACE, MMYYYY_SLASH, MMYYYY_HYPHEN,
-        MMYYYY_SPACE);
+            MMYYYY_SPACE);
   }
 
   public static List<DateFormatEnum> getNOTAllowedExcelFormat() {
     return Arrays.asList(QUARTER_LOWERCASE_N_YYYY_SLASH, QUARTER_LOWERCASE_N_YYYY_HYPHEN, QUARTER_LOWERCASE_N_YYYY_SPACE, QUARTER_UPPERCASE_N_YYYY_SLASH,
-        QUARTER_UPPERCASE_N_YYYY_HYPHEN, QUARTER_UPPERCASE_N_YYYY_SPACE);
+            QUARTER_UPPERCASE_N_YYYY_HYPHEN, QUARTER_UPPERCASE_N_YYYY_SPACE);
   }
 
   public static String getDatePatternDescription(DateFormatEnum pattern) {
@@ -81,23 +74,4 @@ public enum DateFormatEnum {
         return pattern.getValue();
     }
   }
-
-    @Configuration
-    public static class CorsConfig {
-
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-        @Override
-        public void addCorsMappings(CorsRegistry registry) {
-            registry.addMapping("/**").allowedMethods("GET", "POST").allowedHeaders("*").allowedOrigins("*");
-        }
-        };
-    }
-
-    @Bean SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http.requiresChannel(channel -> channel.anyRequest().requiresSecure())
-            .authorizeRequests(authorize -> authorize.anyRequest().permitAll()).build();
-    }
-    }
 }
