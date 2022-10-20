@@ -40,7 +40,7 @@ public class StepConverterManagerImpl implements StepConverterManager {
     public String fromStpToX3D(MultipartFile formData) throws IOException, InterruptedException, ExecutionException, TimeoutException {
         String fileName = storeFile(formData);
         ProcessBuilder builder = new ProcessBuilder();
-        builder.command("C:\\Users\\PC\\Downloads\\SFA-4.80\\sfa-cl.exe", fileName, "view");
+        builder.command("C:\\SFA-4.80\\sfa-cl.exe", fileName, "view");
         builder.directory(new File(System.getProperty("user.home")));
         Process process = builder.start();
         StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
