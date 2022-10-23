@@ -11,9 +11,12 @@ import java.util.concurrent.TimeoutException;
 @RequestMapping("/stpConverter")
 public interface RestServiceStepConverter {
 
-	@PostMapping("/fromStpToX3D")
-	String fromStpToX3D(@RequestParam("file") MultipartFile formData) throws IOException, ExecutionException, InterruptedException, TimeoutException;
+    @PostMapping("/fromStpToX3D")
+    String fromStpToX3D(@RequestParam("file") MultipartFile formData) throws IOException, ExecutionException, InterruptedException, TimeoutException;
 
-	@GetMapping("/testGet")
-	String testGet();
+    @PostMapping("/fromStpToX3DCalculator")
+    String fromStpToX3DCalculator(@RequestParam("file") MultipartFile formData) throws IOException, ExecutionException, InterruptedException, TimeoutException;
+
+    @GetMapping("/testGet")
+    String testGet();
 }

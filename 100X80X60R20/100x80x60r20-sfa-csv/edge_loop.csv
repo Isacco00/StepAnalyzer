@@ -1,0 +1,13 @@
+edge_loop (11)
+ID,name,edge_list
+247,,(5) oriented_edge 238 240 242 244 246
+253,,(2) oriented_edge 250 252
+268,,(4) oriented_edge 261 263 265 267
+282,,(4) oriented_edge 276 277 279 281
+296,,(4) oriented_edge 290 292 294 295
+310,,(4) oriented_edge 304 306 308 309
+323,,(4) oriented_edge 318 320 321 322
+336,,(5) oriented_edge 331 332 333 334 335
+342,,(2) oriented_edge 339 341
+356,,(4) oriented_edge 350 352 353 355
+368,,(4) oriented_edge 364 365 366 367

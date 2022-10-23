@@ -292,7 +292,13 @@ public class CalcUtility {
 	public BigDecimal roundNdecimal(BigDecimal value, int precision) {
 		return NumberUtils.nullToZero(value).setScale(precision, RoundingMode.HALF_UP);
 	}
-
+	public double roundNDecimal(double value, int places) {
+		if (places < 0) throw new IllegalArgumentException();
+		long factor = (long) Math.pow(10, places);
+		value = value * factor;
+		long tmp = Math.round(value);
+		return (double) tmp / factor;
+	}
 	public BigDecimal round2Decimal(BigDecimal value) {
 		return this.roundNdecimal(value, 2);
 	}

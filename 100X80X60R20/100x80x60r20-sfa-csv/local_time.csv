@@ -1,0 +1,3 @@
+local_time (1)
+ID,hour_component,minute_component,second_component,zone
+403,9,8,56.0,coordinated_universal_time_offset 402

@@ -1,0 +1,6 @@
+cc_design_person_and_organization_assignment (4)
+ID,assigned_person_and_organization,role,items
+416,person_and_organization 412,person_and_organization_role 415,(1) product_definition 389   (1) product_definition_formation_with_specified_source 388
+418,person_and_organization 412,person_and_organization_role 417,(1) product_definition_formation_with_specified_source 388
+420,person_and_organization 412,person_and_organization_role 419,(1) security_classification 396
+422,person_and_organization 412,person_and_organization_role 421,(1) product 387

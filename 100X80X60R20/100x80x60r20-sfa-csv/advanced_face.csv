@@ -1,0 +1,11 @@
+advanced_face (9)
+ID,name,bounds,face_geometry,same_sense
+255,,(1) face_bound 254   (1) face_outer_bound 248,plane 236,FALSE
+270,,(1) face_outer_bound 269,cylindrical_surface 260,TRUE
+284,,(1) face_outer_bound 283,plane 275,TRUE
+298,,(1) face_outer_bound 297,plane 289,TRUE
+312,,(1) face_outer_bound 311,plane 303,TRUE
+325,,(1) face_outer_bound 324,plane 317,TRUE
+344,,(1) face_bound 343   (1) face_outer_bound 337,plane 330,TRUE
+358,,(1) face_outer_bound 357,cylindrical_surface 349,FALSE
+370,,(1) face_outer_bound 369,cylindrical_surface 363,FALSE

@@ -1,0 +1,23 @@
+edge_curve (21)
+ID,name,edge_start,edge_end,edge_geometry,same_sense
+237,,vertex_point 218,vertex_point 219,circle 118,TRUE
+239,,vertex_point 218,vertex_point 206,line 122,TRUE
+241,,vertex_point 206,vertex_point 207,line 126,TRUE
+243,,vertex_point 207,vertex_point 209,line 130,TRUE
+245,,vertex_point 209,vertex_point 219,line 134,TRUE
+249,,vertex_point 226,vertex_point 227,circle 139,TRUE
+251,,vertex_point 227,vertex_point 226,circle 144,TRUE
+262,,vertex_point 221,vertex_point 219,line 148,TRUE
+264,,vertex_point 221,vertex_point 223,circle 169,TRUE
+266,,vertex_point 223,vertex_point 218,line 164,TRUE
+278,,vertex_point 209,vertex_point 215,line 152,TRUE
+280,,vertex_point 215,vertex_point 221,line 173,TRUE
+291,,vertex_point 207,vertex_point 213,line 156,TRUE
+293,,vertex_point 213,vertex_point 215,line 177,TRUE
+305,,vertex_point 206,vertex_point 212,line 160,TRUE
+307,,vertex_point 212,vertex_point 213,line 181,TRUE
+319,,vertex_point 223,vertex_point 212,line 185,TRUE
+338,,vertex_point 230,vertex_point 231,circle 190,TRUE
+340,,vertex_point 231,vertex_point 230,circle 195,TRUE
+351,,vertex_point 230,vertex_point 226,line 199,TRUE
+354,,vertex_point 231,vertex_point 227,line 203,TRUE

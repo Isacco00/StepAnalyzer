@@ -1,0 +1,83 @@
+NIST STEP File Analyzer and Viewer 4.80 (Wed Sep 28 22:09:26 CEST 2022)
+
+Opening STEP AP203 file
+ 422 entities
+ 
+Generating Header worksheet
+Name:  100x80x60r20
+FileDirectory:  C:\Users\PC\Desktop\PMC\100X80X60R20\
+FileDescription:  
+FileImplementationLevel:  2;1
+FileTimeStamp:  2022-07-04T
+ ** FileTimeStamp has the wrong format.  See Header worksheet.  [addHeaderWorksheet]
+FileAuthor:  HP
+FileOrganization:  
+FilePreprocessorVersion:  PRO/ENGINEER BY PARAMETRIC TECHNOLOGY CORPORATION, 2011490
+FileOriginatingSystem:  PRO/ENGINEER BY PARAMETRIC TECHNOLOGY CORPORATION, 2011490
+FileAuthorisation:  
+SchemaName:  CONFIG_CONTROL_DESIGN
+ 
+Generating STEP Entity worksheets
+colour_rgb (106)
+draughting_pre_defined_colour (7)
+presentation_layer_assignment (1)
+advanced_brep_shape_representation (1)
+(geometric_representation_context)(global_uncertainty_assigned_context)(global_unit_assigned_context) (1)
+shape_definition_representation (1)
+application_context (1)
+application_protocol_definition (1)
+approval (1)
+approval_date_time (1)
+approval_person_organization (1)
+approval_role (1)
+approval_status (1)
+calendar_date (1)
+cc_design_approval (1)
+ **  Reporting cc_design_approval 'items' attribute is not supported.  '???' will appear in spreadsheet for this attribute.  See User Guide section 5.4
+cc_design_date_and_time_assignment (2)
+cc_design_person_and_organization_assignment (4)
+cc_design_security_classification (1)
+coordinated_universal_time_offset (1)
+date_and_time (1)
+date_time_role (2)
+design_context (1)
+local_time (1)
+mechanical_context (1)
+organization (1)
+person (1)
+person_and_organization (1)
+person_and_organization_role (4)
+product (1)
+product_category (1)
+product_category_relationship (1)
+product_definition (1)
+product_definition_formation_with_specified_source (1)
+product_definition_shape (1)
+product_related_product_category (1)
+security_classification (1)
+security_classification_level (1)
+(conversion_based_unit)(plane_angle_unit) (1)
+dimensional_exponents (1)
+(length_unit)(si_unit) (1)
+plane_angle_measure_with_unit (1)
+(plane_angle_unit)(si_unit) (1)
+(si_unit)(solid_angle_unit) (1)
+uncertainty_measure_with_unit (1)
+ Writing Viewer file to: C:\...\Desktop\PMC\100X80X60R20\100x80x60r20-sfa.html
+ **  Copying Viewer software for part geometry (stp2x3d-part.exe) to C:\Users\PC\AppData\Local\Temp\SFA
+ Processing STEP part geometry
+ Processing X3D output
+
+Generating Summary worksheet
+Formatting Worksheets
+Processing time: 6.0 seconds
+ 
+Saving Spreadsheet to:
+ C:\...\Desktop\PMC\100X80X60R20\100x80x60r20-sfa.xlsx
+
+Opening Spreadsheet: 100x80x60r20-sfa.xlsx
+
+Opening Viewer file: 100x80x60r20-sfa.html (17 KB)
+
+Saving Log file to:
+ C:\...\Desktop\PMC\100X80X60R20\100x80x60r20-sfa.log

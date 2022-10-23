@@ -9,8 +9,7 @@ import stepanalyzer.exception.EntityNotFoundException;
 import stepanalyzer.exception.FileStorageException;
 import stepanalyzer.exception.ValidationException;
 import stepanalyzer.manager.StepConverterManager;
-import stepanalyzer.mapper.CurrencyMapper;
-import stepanalyzer.repository.CurrencyRepository;
+import stepanalyzer.utility.StepUtility;
 import stepanalyzer.utility.StreamGobbler;
 
 import javax.inject.Inject;
@@ -22,22 +21,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeoutException;
 
 @Service
 @Transactional
 public class StepConverterManagerImpl implements StepConverterManager {
 
     @Inject
-    private CurrencyRepository repo;
-    @Inject
-    private CurrencyMapper mapper;
+    StepUtility stepUtility;
 
     @Override
-    public String fromStpToX3D(MultipartFile formData) throws IOException, InterruptedException, ExecutionException, TimeoutException {
+    public String fromStpToX3D(MultipartFile formData) throws IOException, InterruptedException {
         String fileName = storeFile(formData);
         ProcessBuilder builder = new ProcessBuilder();
         builder.command("C:\\Users\\PC\\Downloads\\SFA-4.80\\sfa-cl.exe", fileName, "view");
@@ -93,6 +88,12 @@ public class StepConverterManagerImpl implements StepConverterManager {
         int i = fileName.lastIndexOf('.');
         String name = fileName.substring(0, i);
         return name + newExtension;
+    }
+
+    @Override
+    public String fromStpToX3DCalculator(MultipartFile formData) throws IOException {
+        stepUtility.processStepFile(formData.getInputStream());
+        return null;
     }
 
 }
