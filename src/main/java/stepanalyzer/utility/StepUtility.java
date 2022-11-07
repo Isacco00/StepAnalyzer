@@ -1,6 +1,7 @@
 package stepanalyzer.utility;
 
 import org.springframework.stereotype.Component;
+import stepanalyzer.exception.ValidationException;
 
 import javax.inject.Inject;
 import java.io.BufferedReader;
@@ -10,6 +11,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static java.lang.Math.*;
 
 @Component
 public class StepUtility {
@@ -38,8 +41,8 @@ public class StepUtility {
         }
         List<String> pointSet = new ArrayList<>();
         List<String> indexLineSet = new ArrayList<>();
-        int coordIndex = 0;
-        for (int j = 0; j < 1 /*advancedFaceIdList.size()*/; j++) {
+        int cordIndex = 0;
+        for (int j = 0; j < advancedFaceIdList.size(); j++) {
             String advancedFace = stepBean.get(advancedFaceIdList.get(j));
             List<String> boundsId = new ArrayList<>();
             matcher = Pattern.compile("((?<=#)[^,)#]+)").matcher(advancedFace);
@@ -87,10 +90,10 @@ public class StepUtility {
                 String id = edgeGeometryIdList.get(i);
                 String edgeGeometry = stepBean.get(id);
                 if (edgeGeometry.contains("LINE")) {
-                    indexLineSet.add(Integer.toString(coordIndex));
-                    coordIndex++;
-                    indexLineSet.add(Integer.toString(coordIndex));
-                    coordIndex++;
+                    indexLineSet.add(Integer.toString(cordIndex));
+                    cordIndex++;
+                    indexLineSet.add(Integer.toString(cordIndex));
+                    cordIndex++;
                     indexLineSet.add("-1");
                     List<String[]> cartesianPoint = getCartesianPoint(stepBean, edgeGeometryIdList, i);
                     pointSet.add(Float.parseFloat(cartesianPoint.get(0)[1]) + " " + Float.parseFloat(cartesianPoint.get(0)[2]) + " " + Float.parseFloat(cartesianPoint.get(0)[3]));
@@ -108,6 +111,7 @@ public class StepUtility {
                         centerIdDetail.add(matcher.group(1));
                     }
                     String[] cartesianPointCenterValues = stepBean.get(centerIdDetail.get(0)).replaceAll("([()'#;])", "").split(",");
+                    double direction = Float.parseFloat(stepBean.get(centerIdDetail.get(1)).replaceAll("([()'#;])", "").split(",")[3]);
                     double centerX = Float.parseFloat(cartesianPointCenterValues[1]);
                     double centerY = Float.parseFloat(cartesianPointCenterValues[2]);
                     double centerZ = Float.parseFloat(cartesianPointCenterValues[3]);
@@ -116,29 +120,54 @@ public class StepUtility {
                     double startX = Float.parseFloat(cartesianPoint.get(0)[1]);
                     double startY = Float.parseFloat(cartesianPoint.get(0)[2]);
                     double startZ = Float.parseFloat(cartesianPoint.get(0)[3]);
-                    int angle = 9, angleStart = 9;
+                    double endX = Float.parseFloat(cartesianPoint.get(1)[1]);
+                    double endY = Float.parseFloat(cartesianPoint.get(1)[2]);
+                    double endZ = Float.parseFloat(cartesianPoint.get(1)[3]);
+                    double deltaStartX = (startX - centerX) / radius; //Cos
+                    double deltaStartY = (startY - centerY) / radius; //Sin
+                    double deltaEndX = (endX - centerX) / radius; //Cos
+                    double deltaEndY = (endY - centerY) / radius; //Sin
+                    double angleStart = angleFromSinCos(deltaStartY, deltaStartX);
+                    double angleEnd = angleFromSinCos(deltaEndY, deltaEndX);
+                    if ((startX == endX && startY == endY) || (angleStart == 0 && angleEnd == 0)) {
+                        angleEnd = 360;
+                    }
+                    int angle = 9, counterOperations = 0;
                     do {
-                        int multiplier = 1;
-                        if(startX < 0){
-                            multiplier = -1;
+                        counterOperations++;
+                        if (direction == -1) { //Orario
+                            angleStart -= angle;
+                        } else if (direction == 1) { //Antiorario
+                            angleStart += angle;
+                        } else {
+                            throw new ValidationException("A");
                         }
-                        double incrementX = (Math.sin(Math.toRadians(angleStart)) * radius)*multiplier;
-                        double incrementY = (Math.cos(Math.toRadians(angleStart)) * radius)*multiplier;
+                        if (angleStart < 0) {
+                            angleStart = 360 + angleStart;
+                        }
+                        double incrementX = (Math.sin(Math.toRadians(angleStart)) * radius);
+                        double incrementY = (Math.cos(Math.toRadians(angleStart)) * radius);
                         double incrementZ = 0;
-                        double endX = calcUtility.roundNDecimal(centerX + incrementX, 2);
-                        double endY = calcUtility.roundNDecimal(centerY + incrementY, 2);
-                        double endZ = calcUtility.roundNDecimal(centerZ + incrementZ, 2);
-                        pointSet.add(startX + " " + startY + " " + startZ);
-                        pointSet.add(endX + " " + endY + " " + endZ);
-                        indexLineSet.add(Integer.toString(coordIndex));
-                        coordIndex++;
-                        indexLineSet.add(Integer.toString(coordIndex));
-                        coordIndex++;
-                        startX = endX;
-                        startY = endY;
-                        startZ = endZ;
-                        angleStart += angle;
-                    } while (Float.parseFloat(cartesianPoint.get(0)[1]) < 0 ? startY < Float.parseFloat(cartesianPoint.get(1)[1]) : startX < Float.parseFloat(cartesianPoint.get(1)[1]));
+                        double newPointX = calcUtility.roundNDecimal(centerX + incrementY, 2);
+                        double newPointY = calcUtility.roundNDecimal(centerY + incrementX, 2);
+                        double newPointZ = calcUtility.roundNDecimal(centerZ + incrementZ, 2);
+                        if (direction == -1 ? angleStart > angleEnd : angleStart < angleEnd) {
+                            pointSet.add(startX + " " + startY + " " + startZ);
+                            pointSet.add(newPointX + " " + newPointY + " " + newPointZ);
+                            indexLineSet.add(Integer.toString(cordIndex));
+                            cordIndex++;
+                            indexLineSet.add(Integer.toString(cordIndex));
+                            cordIndex++;
+                            startX = newPointX;
+                            startY = newPointY;
+                            startZ = newPointZ;
+                        } else {
+                            pointSet.add(endX + " " + endY + " " + endZ);
+                            indexLineSet.add(Integer.toString(cordIndex));
+                            cordIndex++;
+                            break;
+                        }
+                    } while (counterOperations < 41); //360
                     indexLineSet.add("-1");
 //                    double distance = calcDistanceBetweenPoints(cartesianPoint.get(0), cartesianPoint.get(1));
                     double value;
@@ -163,6 +192,22 @@ public class StepUtility {
         }
         System.out.println(indexLineSet.stream().collect(Collectors.joining(", ")));
         System.out.println(pointSet.stream().collect(Collectors.joining(", ")));
+    }
+
+    double angleFromSinCos(double sinX, double cosX) {
+        double angFromCos = acos(cosX);
+        double angFromSin = asin(sinX);
+        double sin2 = sinX * sinX;
+        if (sinX < 0) {
+            angFromCos = -angFromCos;
+            if (cosX < 0) //both negative
+                angFromSin = -PI - angFromSin;
+        } else if (cosX < 0)
+            angFromSin = PI - angFromSin;
+        //now favor the computation coming from the
+        //smaller of sinX and cosX, as the smaller
+        //the input value, the smaller the error
+        return ((1.0 - sin2) * angFromSin + sin2 * angFromCos) * 180 / PI;
     }
 
     private static Map<String, String> loadFileAndMapIntoBean(final FileHandler fileHandler, final InputStream file) throws IOException {
