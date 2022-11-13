@@ -1,13 +1,11 @@
 package stepanalyzer.utility;
 
-import org.apache.commons.lang3.Range;
 import org.springframework.stereotype.Component;
 import stepanalyzer.exception.ValidationException;
 
 import javax.inject.Inject;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,7 +25,7 @@ public class StepUtility {
         parseStepFile(stepBean);
     }
 
-    private void parseStepFile(Map<String, String> stepBean) {
+    private void parseStepFile(Map<String, String> stepBean) throws IOException {
         String closedShellKey = "";
         for (Map.Entry<String, String> row : stepBean.entrySet()) {
             if (row.getValue().contains("CLOSED_SHELL")) {
@@ -197,8 +195,73 @@ public class StepUtility {
 
 //            counter++;
         }
-        System.out.println(indexLineSet.stream().collect(Collectors.joining(", ")));
-        System.out.println(pointSet.stream().collect(Collectors.joining(", ")));
+        String html = convertToHtml(String.join(", ", indexLineSet), String.join(", ", pointSet));
+        PrintWriter writer = new PrintWriter("C:\\Users\\isacc\\Downloads\\test.html", StandardCharsets.UTF_8);
+        writer.println(html);
+        writer.close();
+        System.out.println(html);
+    }
+
+    private String convertToHtml(String indexLineSet, String pointSet) {
+        String position = "\"97.9795 -97.9795 97.9795\"";
+        String string = """
+                <html>
+                <head>
+                    <script type='text/javascript' src='https://www.x3dom.org/download/x3dom.js'> </script>
+                    <link rel='stylesheet' type='text/css' href='https://www.x3dom.org/download/x3dom.css'></link>
+                </head>
+                <X3D profile="Immersive" version="3.2" xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:noNamespaceSchemaLocation="https://www.web3d.org/specifications/x3d-3.2.xsd" width="1280px"  height="1024px">
+                  <head>
+                  </head>
+                  <Scene>
+                    <Viewpoint id="Iso" centerOfRotation="0 0 0" position=""" + position + """ 
+                    orientation="0.742906 0.307722 0.594473 1.21712" description="camera" fieldOfView="0.9"></Viewpoint>
+                    <Group DEF="o1">
+                        <Transform DEF="o2" translation="0 0 0" rotation="0 0 1  0" scale="1 1 1" scaleOrientation="0 0 1  0" center="0 0 0" >
+                        <Group DEF="o3">
+                            <Group DEF="o4">
+                                <Shape DEF="o5">
+                                    <Appearance DEF="o6">
+                                        <Material DEF="o7" emissiveColor="0.098039217 0.098039217 0.098039217" />
+                                    </Appearance>
+                                    <PointSet DEF="o8">
+                                        <Coordinate DEF="o9" point="\s""" + pointSet + """
+                                    " />
+                                    </PointSet>
+                                </Shape>
+                            </Group>
+                            <Group DEF="o10">
+                                <Shape DEF="o11">
+                                    <Appearance DEF="o12">
+                                        <Material DEF="o13" diffuseColor="0.098039217 0.098039217 0.098039217" shininess="1" />
+                                    </Appearance>
+                                    <IndexedLineSet DEF="o14" coordIndex="\s""" + indexLineSet + """
+                                    " >
+                                        <Coordinate DEF="o15" point="\s""" + pointSet + """   
+                                        " />
+                                    </IndexedLineSet>
+                                </Shape>
+                            </Group>
+                            <!--<Group DEF="o16">
+                                <Shape DEF="o17">
+                                    <Appearance DEF="o18">
+                                        <Material DEF="o19"/>
+                                    </Appearance>
+                                    <IndexedFaceSet DEF="o20" coordIndex="\s""" + indexLineSet + """ 
+                                    " ccw="TRUE" solid="FALSE" convex="TRUE" creaseAngle="0.5" >
+                                        <Coordinate DEF="o21" point="\s""" + pointSet + """  
+                                        " />
+                                    </IndexedFaceSet>
+                                </Shape>
+                            </Group>-->
+                        </Group>
+                      </Transform>
+                    </Group>
+                  </Scene>
+                </X3D>
+                </html>
+                """;
+        return string;
     }
 
     int angleFromSinCos(double sinX, double cosX) {
@@ -254,189 +317,6 @@ public class StepUtility {
         return mapBean;
     }
 
-    /*
-        private Node[] buildStep(Map<String, String> stepBean) {
-            List<Node> nodes = new ArrayList<>();
-            String closedShellKey = "";
-            for (Map.Entry<String, String> row : stepBean.entrySet()) {
-                if (row.getValue().contains("CLOSED_SHELL")) {
-                    closedShellKey = row.getKey();
-                    break;
-                }
-            }
-            List<String> advancedFaceIdList = new ArrayList<>();
-            Matcher matcher = Pattern.compile("((?<=#)[^,)#]+)").matcher(stepBean.get(closedShellKey));
-            while (matcher.find()) {
-                advancedFaceIdList.add(matcher.group(1));
-            }
-            int max = 1, previousMax = 1;
-            List<String> finalAdvancedFaceId = new ArrayList<>();
-            for (String id : advancedFaceIdList) {
-                String advancedFace = stepBean.get(id);
-                //            buildAdvancedFace(advancedFace);
-                List<String> boundsId = new ArrayList<>();
-                matcher = Pattern.compile("((?<=#)[^,)#]+)").matcher(advancedFace);
-                while (matcher.find()) {
-                    boundsId.add(matcher.group(1));
-                }
-                boundsId.remove(boundsId.size() - 1);
-                int finalSize = 0;
-                for (String boundId : boundsId) {
-                    matcher = Pattern.compile("((?<=#)[^,)#]+)").matcher(stepBean.get(boundId));
-                    List<String> edgeLoopIdList = new ArrayList<>();
-                    while (matcher.find()) {
-                        edgeLoopIdList.add(matcher.group(1));
-                    }
-                    for (String edgeLoopId : edgeLoopIdList) {
-                        String edgeLoop = stepBean.get(edgeLoopId);
-                        List<String> orientedEdgeId = new ArrayList<>();
-                        matcher = Pattern.compile("((?<=#)[^,)#]+)").matcher(edgeLoop);
-                        while (matcher.find()) {
-                            orientedEdgeId.add(matcher.group(1));
-                        }
-                        finalSize = finalSize + orientedEdgeId.size();
-
-                    }
-                }
-                if (finalSize >= max) {
-                    max = finalSize;
-                    if (previousMax != max) {
-                        finalAdvancedFaceId.clear();
-                        previousMax = max;
-                    }
-                    finalAdvancedFaceId.add(id);
-                }
-            }
-            //exportToCsv(fileHandler, directory, advancedFaceFound, "AdvancedFace");
-            //CheckConsistency
-            if (finalAdvancedFaceId.size() > 2) {
-                throw new RuntimeException();
-            }
-            List<String> faceGeometryFound = new ArrayList<>();
-            int counter = 0;
-            List<String> pointPlaneA = new ArrayList<>();
-            List<String> pointPlaneB = new ArrayList<>();
-            for (String advancedFaceId : finalAdvancedFaceId) {
-                String advancedFace = stepBean.get(advancedFaceId);
-                List<String> boundsId = new ArrayList<>();
-                matcher = Pattern.compile("((?<=#)[^,)#]+)").matcher(advancedFace);
-                while (matcher.find()) {
-                    boundsId.add(matcher.group(1));
-                }
-                String faceGeometryId = boundsId.get(boundsId.size() - 1);
-                String faceGeometry = stepBean.get(faceGeometryId);
-                faceGeometryFound.add("#" + advancedFaceId + "= " + advancedFace);
-                faceGeometryFound.add("#" + faceGeometryId + "= " + faceGeometry);
-                faceGeometryFound.add("");
-                boundsId.remove(boundsId.size() - 1);
-                List<String> orientedEdgeIdList = new ArrayList<>();
-                for (String boundId : boundsId) {
-                    String faceOuterBound = stepBean.get(boundId);
-                    faceGeometryFound.add("#" + boundId + "= " + faceOuterBound);
-
-                    List<String> edgeLoopIdList = new ArrayList<>();
-                    matcher = Pattern.compile("((?<=#)[^,)#]+)").matcher(faceOuterBound);
-                    while (matcher.find()) {
-                        edgeLoopIdList.add(matcher.group(1));
-                    }
-                    for (String edgeLoopId : edgeLoopIdList) {
-                        String edgeLoop = stepBean.get(edgeLoopId);
-                        matcher = Pattern.compile("((?<=#)[^,)#]+)").matcher(edgeLoop);
-                        while (matcher.find()) {
-                            orientedEdgeIdList.add(matcher.group(1));
-                        }
-                        faceGeometryFound.add("#" + edgeLoopId + "= " + edgeLoop);
-                    }
-                }
-                faceGeometryFound.add("");
-                List<String> edgeCurveIdList = new ArrayList<>();
-                for (String id : orientedEdgeIdList) {
-                    String orientedEdge = stepBean.get(id);
-                    matcher = Pattern.compile("((?<=#)[^,)#]+)").matcher(orientedEdge);
-                    while (matcher.find()) {
-                        edgeCurveIdList.add(matcher.group(1));
-                    }
-                    faceGeometryFound.add("#" + id + "= " + orientedEdge);
-                }
-                faceGeometryFound.add("");
-                List<String> edgeGeometryIdList = new ArrayList<>();
-                for (String id : edgeCurveIdList) {
-                    String edgeCurve = stepBean.get(id);
-                    matcher = Pattern.compile("((?<=#)[^,)#]+)").matcher(edgeCurve);
-                    while (matcher.find()) {
-                        edgeGeometryIdList.add(matcher.group(1));
-                    }
-                    faceGeometryFound.add("#" + id + "= " + edgeCurve);
-                }
-                faceGeometryFound.add("");
-                double perimeter = 0.0;
-                StringBuilder perimeterValue = new StringBuilder();
-                for (int i = 0; i < edgeGeometryIdList.size(); i++) {
-                    String id = edgeGeometryIdList.get(i);
-                    String edgeGeometry = stepBean.get(id);
-                    faceGeometryFound.add("#" + id + "= " + edgeGeometry);
-                    if (edgeGeometry.contains("LINE")) {
-                        double value = getCartesianPoint(stepBean, faceGeometryFound, edgeGeometryIdList, i, counter, pointPlaneA, pointPlaneB, "LINE");
-                        perimeter = perimeter + value;
-                        perimeterValue.append("+").append(" from line ").append(value);
-                    }
-                    if (edgeGeometry.contains("CIRCLE")) {
-                        double distance = getCartesianPoint(stepBean, faceGeometryFound, edgeGeometryIdList, i, counter, pointPlaneA, pointPlaneB, "CIRCLE");
-                        double radius = Double.parseDouble(edgeGeometry.replaceAll("([A-Z])+\\(|([#;)])", "").split(",")[2]);
-                        String centerId = edgeGeometry.replaceAll("([A-Z])+\\(|([#;)])", "").split(",")[1];
-                        String center = stepBean.get(centerId);
-                        matcher = Pattern.compile("((?<=#)[^,)#]+)").matcher(center);
-                        List<String> centerIdDetail = new ArrayList<>();
-                        while (matcher.find()) {
-                            centerIdDetail.add(matcher.group(1));
-                        }
-                        String[] cartesianPointCenterValues = stepBean.get(centerIdDetail.get(0)).replaceAll("([()'#;])", "").split(",");
-                        double value;
-                        if (distance == 0) {
-                            value = radius * 2 * Math.PI;
-                        } else {
-                            value = radius * 2 * Math.asin(distance / (2 * radius));
-                        }
-                        SegmentedSphereMesh spheroidMesh = new SegmentedSphereMesh(64, 0, 0, radius, new Point3D(Double.parseDouble(cartesianPointCenterValues[1]), Double.parseDouble(cartesianPointCenterValues[2]), Double.parseDouble(cartesianPointCenterValues[3])));
-                        spheroidMesh.setTextureModeNone(Color.color(Math.random(), Math.random(), Math.random()));
-                        nodes.add(spheroidMesh);
-                        perimeter = perimeter + value;
-                        perimeterValue.append("+").append(" from circle ").append(value);
-                    }
-                }
-                faceGeometryFound.add("");
-                faceGeometryFound.add("---------------------------------------------------------------------");
-                faceGeometryFound.add("PERIMETRO FACCIA : " + perimeter);
-                faceGeometryFound.add("PERIMETRO VALORI : " + perimeterValue);
-                faceGeometryFound.add("---------------------------------------------------------------------");
-                faceGeometryFound.add("");
-
-
-                counter++;
-            }
-            TriangulatedMesh customShape = new TriangulatedMesh(pointsFace1, 1);
-            System.out.println(pointsFace1);
-            System.out.println(pointsFace2);
-            //TriangulatedMesh customShape2 = new TriangulatedMesh(pointsFace2, 1);
-            customShape.setLevel(0);
-            customShape.setCullFace(CullFace.NONE);
-            nodes.add(customShape);
-            Node[] arrayNodes = nodes.toArray(Node[]::new);
-            return arrayNodes;
-            //customShape.getTransforms().addAll(new Rotate(-90, Rotate.X_AXIS));
-
-            //PolyLine3D polyLine3D = new PolyLine3D(points, with, Color.STEELBLUE);
-
-            //stepGroup.getChildren().add(customShape);
-            //world.getChildren().addAll(stepGroup);
-
-
-            //        String fileName = directory.getSelectedFile().getName().substring(0, directory.getSelectedFile().getName().length() - 4);
-            //        exportToFile(fileHandler, directory, faceGeometryFound, fileName);
-            //        exportToFile(fileHandler, directory, pointPlaneA, "PuntiPianoA_" + fileName);
-            //        exportToFile(fileHandler, directory, pointPlaneB, "PuntiPianoB_ " + fileName);
-        }
-    */
     private List<String[]> getCartesianPoint(Map<String, String> stepBean, List<String> edgeGeometryIdList, int i) {
         String cartesianPoint1Id = "", cartesianPoint2Id = "";
         Matcher matcher = Pattern.compile("((?<=#)[^,)#]+)").matcher(stepBean.get(edgeGeometryIdList.get(i - 2)));
