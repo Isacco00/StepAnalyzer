@@ -21,8 +21,9 @@ import java.util.concurrent.TimeoutException;
 
     @Inject private StepConverterManager stepConverterManager;
 
-    @Override public String fromStpToX3D(@RequestParam("file") MultipartFile file) {
-        return null;
+    @Override public String fromStpToX3D(@RequestParam("file") MultipartFile file)
+        throws IOException, ExecutionException, InterruptedException, TimeoutException {
+        return stepConverterManager.fromStpToX3D(file);
     }
 
     @Override public ResponseEntity<Resource> fromStpToStl(@RequestParam("file") MultipartFile file)

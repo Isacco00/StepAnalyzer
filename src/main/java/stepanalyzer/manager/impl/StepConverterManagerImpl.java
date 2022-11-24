@@ -31,7 +31,7 @@ import java.util.concurrent.Executors;
     @Override public DocumentBean fromStpToStl(MultipartFile formData) throws IOException, InterruptedException {
         String fileName = storeFile(formData);
         ProcessBuilder builder = new ProcessBuilder();
-        builder.command("python", "converter.py");
+        builder.command("python", "convertToStl.py");
         builder.directory(new File(System.getProperty("user.home") + "/Desktop"));
         Process process = builder.inheritIO().start();
         StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
@@ -49,9 +49,32 @@ import java.util.concurrent.Executors;
         }
     }
 
+    @Override public String fromStpToX3D(MultipartFile formData) throws IOException, InterruptedException {
+        String fileName = storeFile(formData);
+        ProcessBuilder builder = new ProcessBuilder();
+        builder.command("python", "convertToX3D.py");
+        builder.directory(new File(System.getProperty("user.home") + "/Desktop"));
+        Process process = builder.inheritIO().start();
+        StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
+        Executors.newSingleThreadExecutor().submit(streamGobbler);
+        int exitCode = process.waitFor();
+        if (exitCode == 0) {
+            String x3dFileName = System.getProperty("user.home") + "/Desktop/3DModelsToConvert/Converted-X3Ds/" + fileName + ".xhtml";
+            Resource resource = loadFileAsResource(x3dFileName);
+            String s = new String(Files.readAllBytes(resource.getFile().toPath()));
+            return s.substring(s.indexOf("<X3D"), s.indexOf("</X3D>") + 6).replace(
+                    "<X3D profile=\"Immersive\" version=\"3.2\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema-instance\" xsd:noNamespaceSchemaLocation=\"http://www.web3d.org/specifications/x3d-3.2.xsd\" width=\"1280px\"  height=\"1024px\">",
+                    "<X3D profile=\"Immersive\" version=\"3.2\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema-instance\" xsd:noNamespaceSchemaLocation=\"http://www.web3d.org/specifications/x3d-3.2.xsd\">")
+                .replace("<Background groundColor=\"0.7 0.7 0.7\" skyColor=\"0.7 0.7 0.7\" />",
+                    "<Background groundColor=\"1.0 1.0 1.0\" skyColor=\"1.0 1.0 1.0\" />");
+        } else {
+            throw new ValidationException("Errore lettura file STP");
+        }
+    }
+
     private String storeFile(MultipartFile formData) {
         // Normalize file name
-        String fileName = StringUtils.cleanPath(Objects.requireNonNull(formData.getOriginalFilename()));
+        String fileName = new File(Objects.requireNonNull(formData.getOriginalFilename())).getName();
         try {
             // Check if the file's name contains invalid characters
             if (fileName.contains("..")) {
