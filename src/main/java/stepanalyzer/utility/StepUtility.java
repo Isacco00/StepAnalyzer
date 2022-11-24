@@ -4,12 +4,16 @@ import org.springframework.stereotype.Component;
 import stepanalyzer.exception.ValidationException;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static java.lang.Math.*;
 
@@ -122,10 +126,10 @@ public class StepUtility {
                     double endX = Float.parseFloat(cartesianPoint.get(1)[1]);
                     double endY = Float.parseFloat(cartesianPoint.get(1)[2]);
                     double endZ = Float.parseFloat(cartesianPoint.get(1)[3]);
-                    double deltaStartX = (startX - centerX) / radius; //Cos
-                    double deltaStartY = (startY - centerY) / radius; //Sin
-                    double deltaEndX = (endX - centerX) / radius; //Cos
-                    double deltaEndY = (endY - centerY) / radius; //Sin
+                    double deltaStartX = CalcUtility.round(((startX - centerX) / radius),2); //Cos
+                    double deltaStartY = CalcUtility.round(((startY - centerY) / radius),2); //Sin
+                    double deltaEndX = CalcUtility.round(((endX - centerX) / radius),2); //Cos
+                    double deltaEndY = CalcUtility.round(((endY - centerY) / radius),2); //Sin
                     int angleStart = angleFromSinCos(deltaStartY, deltaStartX);
                     int angleEnd = angleFromSinCos(deltaEndY, deltaEndX);
                     //if ((startX == endX && startY == endY) || (angleStart == 0 && angleEnd == 0) || (direction == 1 && angleEnd == 0)) {
@@ -196,7 +200,7 @@ public class StepUtility {
 //            counter++;
         }
         String html = convertToHtml(String.join(", ", indexLineSet), String.join(", ", pointSet));
-        PrintWriter writer = new PrintWriter("C:\\Users\\isacc\\Downloads\\test.html", StandardCharsets.UTF_8);
+        PrintWriter writer = new PrintWriter("C:\\Users\\isacc\\Downloads\\test.xhtml", StandardCharsets.UTF_8);
         writer.println(html);
         writer.close();
         System.out.println(html);
@@ -205,51 +209,53 @@ public class StepUtility {
     private String convertToHtml(String indexLineSet, String pointSet) {
         String position = "\"97.9795 -97.9795 97.9795\"";
         String string = """
-                <html>
-                <head>
-                    <script type='text/javascript' src='https://www.x3dom.org/download/x3dom.js'> </script>
-                    <link rel='stylesheet' type='text/css' href='https://www.x3dom.org/download/x3dom.css'></link>
-                </head>
+                <?xml version="1.0" encoding="UTF-8"?>
+                <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+                <html xmlns='http://www.w3.org/1999/xhtml'>
+                    <head>
+                        <script type='text/javascript' src='https://www.x3dom.org/download/x3dom.js'> </script>
+                        <link rel='stylesheet' type='text/css' href='https://www.x3dom.org/download/x3dom.css'></link>
+                    </head>
                 <X3D profile="Immersive" version="3.2" xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:noNamespaceSchemaLocation="https://www.web3d.org/specifications/x3d-3.2.xsd" width="1280px"  height="1024px">
-                  <head>
-                  </head>
-                  <Scene>
-                    <Viewpoint id="Iso" centerOfRotation="0 0 0" position=""" + position + """ 
-                    orientation="0.742906 0.307722 0.594473 1.21712" description="camera" fieldOfView="0.9"></Viewpoint>
-                    <Group DEF="o1">
-                        <Transform DEF="o2" translation="0 0 0" rotation="0 0 1  0" scale="1 1 1" scaleOrientation="0 0 1  0" center="0 0 0" >
-                        <Group DEF="o3">
-                            <Group DEF="o4">
-                                <Shape DEF="o5">
-                                    <Appearance DEF="o6">
-                                        <Material DEF="o7" emissiveColor="0.098039217 0.098039217 0.098039217" />
-                                    </Appearance>
-                                    <PointSet DEF="o8">
-                                        <Coordinate DEF="o9" point="\s""" + pointSet + """
-                                    " />
-                                    </PointSet>
-                                </Shape>
-                            </Group>
-                            <Group DEF="o10">
-                                <Shape DEF="o11">
-                                    <Appearance DEF="o12">
-                                        <Material DEF="o13" diffuseColor="0.098039217 0.098039217 0.098039217" shininess="1" />
-                                    </Appearance>
-                                    <IndexedLineSet DEF="o14" coordIndex="\s""" + indexLineSet + """
-                                    " >
-                                        <Coordinate DEF="o15" point="\s""" + pointSet + """   
-                                        " />
-                                    </IndexedLineSet>
-                                </Shape>
-                            </Group>
-                            <!--<Group DEF="o16">
-                                <Shape DEF="o17">
-                                    <Appearance DEF="o18">
-                                        <Material DEF="o19"/>
-                                    </Appearance>
-                                    <IndexedFaceSet DEF="o20" coordIndex="\s""" + indexLineSet + """ 
-                                    " ccw="TRUE" solid="FALSE" convex="TRUE" creaseAngle="0.5" >
-                                        <Coordinate DEF="o21" point="\s""" + pointSet + """  
+                    <head>
+                    </head>
+                    <Scene>
+                        <Viewpoint id="Iso" centerOfRotation="0 0 0" position=""" + position + """
+                \sorientation="0.742906 0.307722 0.594473 1.21712" description="camera" fieldOfView="0.9"></Viewpoint>
+                <Group DEF="o1">
+                    <Transform DEF="o2" translation="0 0 0" rotation="0 0 1  0" scale="1 1 1" scaleOrientation="0 0 1  0" center="0 0 0" >
+                    <Group DEF="o3">
+                        <Group DEF="o4">
+                            <Shape DEF="o5">
+                                <Appearance DEF="o6">
+                                    <Material DEF="o7" emissiveColor="0.098039217 0.098039217 0.098039217" />
+                                </Appearance>
+                                <PointSet DEF="o8">
+                                <Coordinate DEF="o9" point="\s""" + pointSet + """
+                        " />
+                        </PointSet>
+                    </Shape>
+                </Group>
+                <Group DEF="o10">
+                    <Shape DEF="o11">
+                        <Appearance DEF="o12">
+                            <Material DEF="o13" diffuseColor="0.098039217 0.098039217 0.098039217" shininess="1" />
+                        </Appearance>
+                        <IndexedLineSet DEF="o14" coordIndex="\s""" + indexLineSet + """
+                " >
+                    <Coordinate DEF="o15" point="\s""" + pointSet + """   
+                            " />
+                        </IndexedLineSet>
+                    </Shape>
+                </Group>
+                <!--<Group DEF="o16">
+                    <Shape DEF="o17">
+                        <Appearance DEF="o18">
+                            <Material DEF="o19"/>
+                        </Appearance>
+                        <IndexedFaceSet DEF="o20" coordIndex="\s""" + indexLineSet + """ 
+                " ccw="TRUE" solid="FALSE" convex="TRUE" creaseAngle="0.5" >
+                    <Coordinate DEF="o21" point="\s""" + pointSet + """  
                                         " />
                                     </IndexedFaceSet>
                                 </Shape>
