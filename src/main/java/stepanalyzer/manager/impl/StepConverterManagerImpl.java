@@ -5,6 +5,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import stepanalyzer.bean.DocumentBean;
 import stepanalyzer.exception.EntityNotFoundException;
 import stepanalyzer.exception.FileStorageException;
 import stepanalyzer.exception.ValidationException;
@@ -22,30 +23,27 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
-@Service
-@Transactional
-public class StepConverterManagerImpl implements StepConverterManager {
+@Service @Transactional public class StepConverterManagerImpl implements StepConverterManager {
 
-    @Inject
-    StepUtility stepUtility;
+    @Inject StepUtility stepUtility;
 
-    @Override
-    public String fromStpToX3D(MultipartFile formData) throws IOException, InterruptedException {
+    @Override public DocumentBean fromStpToStl(MultipartFile formData) throws IOException, InterruptedException {
         String fileName = storeFile(formData);
         ProcessBuilder builder = new ProcessBuilder();
-        builder.command("C:\\SFA-4.80\\sfa-cl.exe", fileName, "view");
-        builder.directory(new File(System.getProperty("user.home")));
-        Process process = builder.start();
+        builder.command("python", "converter.py");
+        builder.directory(new File(System.getProperty("user.home") + "/Desktop"));
+        Process process = builder.inheritIO().start();
         StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
-        Future<?> future = Executors.newSingleThreadExecutor().submit(streamGobbler);
+        Executors.newSingleThreadExecutor().submit(streamGobbler);
         int exitCode = process.waitFor();
         if (exitCode == 0) {
-            String htmlFileName = changeExtension(fileName, "-sfa.html");
-            Resource resource = loadFileAsResource(htmlFileName);
-            String s = new String(Files.readAllBytes(resource.getFile().toPath()));
-            return s.substring(s.indexOf("<X3D"), s.indexOf("</X3D>") + 6);
+            String stlFileName = System.getProperty("user.home") + "/Desktop/3DModelsToConvert/Converted-STLs/" + fileName + ".stl";
+            Resource resource = loadFileAsResource(stlFileName);
+            DocumentBean bean = new DocumentBean();
+            bean.setPayload(Files.readAllBytes(resource.getFile().toPath()));
+            bean.setFileName(fileName + ".stl");
+            return bean;
         } else {
             throw new ValidationException("Errore lettura file STP");
         }
@@ -60,11 +58,9 @@ public class StepConverterManagerImpl implements StepConverterManager {
                 throw new FileStorageException("Sorry! Filename contains invalid path sequence " + fileName);
             }
             // Copy file to the target location (Replacing existing file with the same name)
-            Path targetLocation = Path.of("C:\\stpviewer\\" + fileName);
-            File file = new File(targetLocation.toUri());
-            file.getParentFile().mkdirs();
+            Path targetLocation = Path.of(System.getProperty("user.home") + "/Desktop/3DModelsToConvert/" + fileName);
             Files.copy(formData.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            return targetLocation.toFile().getAbsolutePath();
+            return targetLocation.toFile().getName();
         } catch (IOException ex) {
             throw new FileStorageException("Could not store file " + fileName + ". Please try again!", ex);
         }
@@ -84,14 +80,7 @@ public class StepConverterManagerImpl implements StepConverterManager {
         }
     }
 
-    public static String changeExtension(String fileName, String newExtension) {
-        int i = fileName.lastIndexOf('.');
-        String name = fileName.substring(0, i);
-        return name + newExtension;
-    }
-
-    @Override
-    public String fromStpToX3DCalculator(MultipartFile formData) throws IOException {
+    @Override public String fromStpToX3DCalculator(MultipartFile formData) throws IOException {
         stepUtility.processStepFile(formData.getInputStream());
         return null;
     }

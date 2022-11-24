@@ -39,4 +39,9 @@ public class CsvUtility {
 			throw new RuntimeException("Csv writing error: " + e.getMessage());
 		}
 	}
+	public static String changeExtension(String fileName, String newExtension) {
+		int i = fileName.lastIndexOf('.');
+		String name = fileName.substring(0, i);
+		return name + newExtension;
+	}
 }
