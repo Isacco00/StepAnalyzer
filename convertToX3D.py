@@ -10,7 +10,7 @@ import sys
 import glob
 
 if platform.system() == 'Windows': 
-    FREECADPATH = glob.glob(r"D:\ProgrammiUnsupported\FreeCAD *\bin")
+    FREECADPATH = glob.glob(r"C:\Program Files\FreeCAD *\bin")
     FREECADPATH = FREECADPATH[0]
     #print(FREECADPATH) #in case needed to confirm, uncomment
     

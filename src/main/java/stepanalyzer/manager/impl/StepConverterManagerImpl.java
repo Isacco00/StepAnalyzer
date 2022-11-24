@@ -38,11 +38,12 @@ import java.util.concurrent.Executors;
         Executors.newSingleThreadExecutor().submit(streamGobbler);
         int exitCode = process.waitFor();
         if (exitCode == 0) {
-            String stlFileName = System.getProperty("user.home") + "/Desktop/3DModelsToConvert/Converted-STLs/" + fileName + ".stl";
-            Resource resource = loadFileAsResource(stlFileName);
+            String stlFilePath = System.getProperty("user.home") + "/Desktop/3DModelsToConvert/Converted-STLs/" + fileName + ".stl";
+            Resource resource = loadFileAsResource(stlFilePath);
             DocumentBean bean = new DocumentBean();
             bean.setPayload(Files.readAllBytes(resource.getFile().toPath()));
-            bean.setFileName(fileName + ".stl");
+            bean.setFileName(fileName);
+            bean.setFilePath(stlFilePath);
             return bean;
         } else {
             throw new ValidationException("Errore lettura file STP");
@@ -101,11 +102,6 @@ import java.util.concurrent.Executors;
         } catch (MalformedURLException ex) {
             throw new EntityNotFoundException("File not found " + fileName, ex);
         }
-    }
-
-    @Override public String fromStpToX3DCalculator(MultipartFile formData) throws IOException {
-        stepUtility.processStepFile(formData.getInputStream());
-        return null;
     }
 
 }

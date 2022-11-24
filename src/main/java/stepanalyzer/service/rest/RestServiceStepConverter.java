@@ -4,8 +4,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import stepanalyzer.bean.StepBean;
 
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -18,7 +18,8 @@ import java.util.concurrent.TimeoutException;
     @PostMapping("/fromStpToStl") ResponseEntity<Resource> fromStpToStl(@RequestParam("file") MultipartFile formData)
         throws IOException, ExecutionException, InterruptedException, TimeoutException;
 
-    @PostMapping("/fromStpToX3DCalculator") String fromStpToX3DCalculator(@RequestParam("file") MultipartFile formData)
+    @PostMapping("/stpCalculator")
+    StepBean stpCalculator(@RequestParam("file") MultipartFile formData)
         throws IOException, ExecutionException, InterruptedException, TimeoutException;
 
     @GetMapping("/testGet") String testGet();

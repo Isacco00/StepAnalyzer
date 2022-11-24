@@ -13,5 +13,4 @@ public interface StepConverterManager {
 
     String fromStpToX3D(MultipartFile inputStream) throws IOException, InterruptedException, ExecutionException, TimeoutException;
 
-    String fromStpToX3DCalculator(MultipartFile inputStream) throws IOException, InterruptedException, ExecutionException, TimeoutException;
 }
