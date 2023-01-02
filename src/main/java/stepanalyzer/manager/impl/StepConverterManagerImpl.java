@@ -103,5 +103,8 @@ import java.util.concurrent.Executors;
             throw new EntityNotFoundException("File not found " + fileName, ex);
         }
     }
-
+    @Override public String fromStpToX3DCalculator(MultipartFile formData) throws IOException, InterruptedException {
+        stepUtility.processStepFile(formData.getInputStream());
+        return null;
+    }
 }

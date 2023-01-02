@@ -4,13 +4,9 @@ import org.springframework.stereotype.Component;
 import stepanalyzer.exception.ValidationException;
 
 import javax.inject.Inject;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,7 +40,9 @@ public class StepUtility {
         }
         List<String> pointSet = new ArrayList<>();
         List<String> indexLineSet = new ArrayList<>();
+        List<String> indexFaceSet = new ArrayList<>();
         int cordIndex = 0;
+        int indexedFaceSetStart = cordIndex;
         for (int j = 0; j < advancedFaceIdList.size(); j++) {
             String advancedFace = stepBean.get(advancedFaceIdList.get(j));
             List<String> boundsId = new ArrayList<>();
@@ -99,8 +97,8 @@ public class StepUtility {
                     cordIndex++;
                     indexLineSet.add("-1");
                     List<String[]> cartesianPoint = getCartesianPoint(stepBean, edgeGeometryIdList, i);
-                    pointSet.add(Float.parseFloat(cartesianPoint.get(0)[1]) + " " + Float.parseFloat(cartesianPoint.get(0)[2]) + " " + Float.parseFloat(cartesianPoint.get(0)[3]));
-                    pointSet.add(Float.parseFloat(cartesianPoint.get(1)[1]) + " " + Float.parseFloat(cartesianPoint.get(1)[2]) + " " + Float.parseFloat(cartesianPoint.get(1)[3]));
+                    pointSet.add(Float.parseFloat(cartesianPoint.get(0)[1]) + " " + Float.parseFloat(cartesianPoint.get(0)[2]) + " " + CalcUtility.round(Float.parseFloat(cartesianPoint.get(0)[3]), 2));
+                    pointSet.add(Float.parseFloat(cartesianPoint.get(1)[1]) + " " + Float.parseFloat(cartesianPoint.get(1)[2]) + " " + CalcUtility.round(Float.parseFloat(cartesianPoint.get(1)[3]), 2));
                     double value = calcDistanceBetweenPoints(cartesianPoint.get(0), cartesianPoint.get(1));
 
 //                    perimeter = perimeter + value;
@@ -126,10 +124,10 @@ public class StepUtility {
                     double endX = Float.parseFloat(cartesianPoint.get(1)[1]);
                     double endY = Float.parseFloat(cartesianPoint.get(1)[2]);
                     double endZ = Float.parseFloat(cartesianPoint.get(1)[3]);
-                    double deltaStartX = CalcUtility.round(((startX - centerX) / radius),2); //Cos
-                    double deltaStartY = CalcUtility.round(((startY - centerY) / radius),2); //Sin
-                    double deltaEndX = CalcUtility.round(((endX - centerX) / radius),2); //Cos
-                    double deltaEndY = CalcUtility.round(((endY - centerY) / radius),2); //Sin
+                    double deltaStartX = CalcUtility.round(((startX - centerX) / radius), 2); //Cos
+                    double deltaStartY = CalcUtility.round(((startY - centerY) / radius), 2); //Sin
+                    double deltaEndX = CalcUtility.round(((endX - centerX) / radius), 2); //Cos
+                    double deltaEndY = CalcUtility.round(((endY - centerY) / radius), 2); //Sin
                     int angleStart = angleFromSinCos(deltaStartY, deltaStartX);
                     int angleEnd = angleFromSinCos(deltaEndY, deltaEndX);
                     //if ((startX == endX && startY == endY) || (angleStart == 0 && angleEnd == 0) || (direction == 1 && angleEnd == 0)) {
@@ -167,15 +165,9 @@ public class StepUtility {
                         double newPointX = calcUtility.roundNDecimal(centerX + incrementY, 2);
                         double newPointY = calcUtility.roundNDecimal(centerY + incrementX, 2);
                         double newPointZ = calcUtility.roundNDecimal(centerZ + incrementZ, 2);
-                        pointSet.add(startX + " " + startY + " " + startZ);
                         pointSet.add(newPointX + " " + newPointY + " " + newPointZ);
                         indexLineSet.add(Integer.toString(cordIndex));
                         cordIndex++;
-                        indexLineSet.add(Integer.toString(cordIndex));
-                        cordIndex++;
-                        startX = newPointX;
-                        startY = newPointY;
-                        startZ = newPointZ;
                     }
                     indexLineSet.add("-1");
 //                    double distance = calcDistanceBetweenPoints(cartesianPoint.get(0), cartesianPoint.get(1));
@@ -198,72 +190,82 @@ public class StepUtility {
 
 
 //            counter++;
+            //Z Reset
+
+            //IndexedFaceSet
+            int lastIndex = cordIndex - 1;
+            int firstIndex = indexedFaceSetStart;
+            for (; indexedFaceSetStart < lastIndex; indexedFaceSetStart++) {
+                if (indexedFaceSetStart == lastIndex - 1) {
+                    indexFaceSet.add(indexedFaceSetStart + "," + firstIndex + "," + lastIndex + ",-1\n");
+                } else {
+                    indexFaceSet.add(indexedFaceSetStart + "," + (indexedFaceSetStart + 1) + "," + lastIndex + ",-1\n");
+                }
+            }
+            indexedFaceSetStart = cordIndex;
+
         }
-        String html = convertToHtml(String.join(", ", indexLineSet), String.join(", ", pointSet));
+        String html = convertToHtml(String.join(", ", indexLineSet), String.join(",\n ", pointSet), String.join(", ", indexFaceSet));
         PrintWriter writer = new PrintWriter("C:\\Users\\isacc\\Downloads\\test.xhtml", StandardCharsets.UTF_8);
         writer.println(html);
         writer.close();
-        System.out.println(html);
+        String inputFile = "C:\\Users\\isacc\\Desktop\\3DModelsToConvert\\Converted-STLs\\100x80x60r60esterno.stp.stl";
     }
 
-    private String convertToHtml(String indexLineSet, String pointSet) {
-        String position = "\"97.9795 -97.9795 97.9795\"";
+    private String convertToHtml(String indexLineSet, String pointSet, String indexFaceSet) {
+        String position = "\"147.98 -57.9795 127.98\"";
         String string = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
                 <html xmlns='http://www.w3.org/1999/xhtml'>
-                    <head>
-                        <script type='text/javascript' src='https://www.x3dom.org/download/x3dom.js'> </script>
-                        <link rel='stylesheet' type='text/css' href='https://www.x3dom.org/download/x3dom.css'></link>
-                    </head>
+                <head>
+                \t<script type='text/javascript' src='""" + System.getProperty("user.home") + "\\Desktop\\x3dom.js" + """
+                '/>
+                \t<link rel='stylesheet' type='text/css' href='""" + System.getProperty("user.home") + "\\Desktop\\x3dom.css" + """
+                '/>
+                </head>
                 <X3D profile="Immersive" version="3.2" xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:noNamespaceSchemaLocation="https://www.web3d.org/specifications/x3d-3.2.xsd" width="1280px"  height="1024px">
-                    <head>
-                    </head>
-                    <Scene>
-                        <Viewpoint id="Iso" centerOfRotation="0 0 0" position=""" + position + """
+                \t<head>
+                \t</head>
+                \t<Scene>
+                \t\t<Viewpoint id="Iso" centerOfRotation="0 0 0" position=""" + position + """
                 \sorientation="0.742906 0.307722 0.594473 1.21712" description="camera" fieldOfView="0.9"></Viewpoint>
-                <Group DEF="o1">
-                    <Transform DEF="o2" translation="0 0 0" rotation="0 0 1  0" scale="1 1 1" scaleOrientation="0 0 1  0" center="0 0 0" >
-                    <Group DEF="o3">
-                        <Group DEF="o4">
-                            <Shape DEF="o5">
-                                <Appearance DEF="o6">
-                                    <Material DEF="o7" emissiveColor="0.098039217 0.098039217 0.098039217" />
-                                </Appearance>
-                                <PointSet DEF="o8">
-                                <Coordinate DEF="o9" point="\s""" + pointSet + """
+                \t\t<Transform DEF="o1" translation="0 0 0" rotation="0 0 1  0" scale="1 1 1" scaleOrientation="0 0 1  0" center="0 0 0" >
+                \t\t\t<Group DEF="o2">
+                \t\t\t\t<Shape DEF="o3">
+                \t\t\t\t<Appearance DEF="o4">
+                \t\t\t\t<Material DEF="o5" emissiveColor="0.098039217 0.098039217 0.098039217" />
+                \t\t\t\t</Appearance>
+                \t\t\t\t<PointSet DEF="o6">
+                \t\t\t\t<Coordinate DEF="o7" point="\s""" + pointSet + """
                         " />
-                        </PointSet>
-                    </Shape>
-                </Group>
-                <Group DEF="o10">
-                    <Shape DEF="o11">
-                        <Appearance DEF="o12">
-                            <Material DEF="o13" diffuseColor="0.098039217 0.098039217 0.098039217" shininess="1" />
-                        </Appearance>
-                        <IndexedLineSet DEF="o14" coordIndex="\s""" + indexLineSet + """
-                " >
-                    <Coordinate DEF="o15" point="\s""" + pointSet + """   
-                            " />
-                        </IndexedLineSet>
-                    </Shape>
-                </Group>
-                <!--<Group DEF="o16">
-                    <Shape DEF="o17">
-                        <Appearance DEF="o18">
-                            <Material DEF="o19"/>
-                        </Appearance>
-                        <IndexedFaceSet DEF="o20" coordIndex="\s""" + indexLineSet + """ 
+                \t\t\t\t</PointSet>
+                \t\t\t\t</Shape>
+                \t\t\t</Group>
+                \t\t\t<Group DEF="o8">
+                \t\t\t\t<Shape DEF="o9">
+                \t\t\t\t<Appearance DEF="o10">
+                \t\t\t\t<Material DEF="o11" diffuseColor="0.098039217 0.098039217 0.098039217" shininess="1" />
+                \t\t\t\t</Appearance>
+                \t\t\t\t<IndexedLineSet DEF="o12" coordIndex="\s""" + indexLineSet + """
+                ">
+                \t\t\t\t<Coordinate USE="o7" />
+                \t\t\t\t</IndexedLineSet>
+                \t\t\t\t</Shape>
+                \t\t\t</Group>
+                \t\t\t<!--<Group DEF="o13">
+                \t\t\t\t<Shape DEF="o14">
+                \t\t\t\t<Appearance DEF="o15">
+                \t\t\t\t<Material DEF="o16"/>
+                \t\t\t\t</Appearance>
+                \t\t\t\t<IndexedFaceSet DEF="o17" coordIndex="\s""" + indexFaceSet + """ 
                 " ccw="TRUE" solid="FALSE" convex="TRUE" creaseAngle="0.5" >
-                    <Coordinate DEF="o21" point="\s""" + pointSet + """  
-                                        " />
-                                    </IndexedFaceSet>
-                                </Shape>
-                            </Group>-->
-                        </Group>
-                      </Transform>
-                    </Group>
-                  </Scene>
+                \t\t\t\t<Coordinate USE="o7" />
+                \t\t\t\t</IndexedFaceSet>
+                \t\t\t\t</Shape>
+                \t\t\t</Group>-->
+                \t\t</Transform>
+                \t</Scene>
                 </X3D>
                 </html>
                 """;

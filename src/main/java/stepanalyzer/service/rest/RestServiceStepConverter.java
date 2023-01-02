@@ -23,4 +23,7 @@ import java.util.concurrent.TimeoutException;
         throws IOException, ExecutionException, InterruptedException, TimeoutException;
 
     @GetMapping("/testGet") String testGet();
+
+    @PostMapping("/fromStpToX3DCalculator") String fromStpToX3DCalculator(@RequestParam("file") MultipartFile formData)
+            throws IOException, ExecutionException, InterruptedException, TimeoutException;
 }

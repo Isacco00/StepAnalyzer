@@ -12,5 +12,6 @@ public interface StepConverterManager {
     DocumentBean fromStpToStl(MultipartFile inputStream) throws IOException, InterruptedException, ExecutionException, TimeoutException;
 
     String fromStpToX3D(MultipartFile inputStream) throws IOException, InterruptedException, ExecutionException, TimeoutException;
+    String fromStpToX3DCalculator(MultipartFile inputStream) throws IOException, InterruptedException, ExecutionException, TimeoutException;
 
 }
