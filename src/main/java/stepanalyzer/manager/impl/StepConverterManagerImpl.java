@@ -3,7 +3,6 @@ package stepanalyzer.manager.impl;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import stepanalyzer.bean.DocumentBean;
 import stepanalyzer.exception.EntityNotFoundException;
@@ -74,7 +73,6 @@ import java.util.concurrent.Executors;
     }
 
     private String storeFile(MultipartFile formData) {
-        // Normalize file name
         String fileName = new File(Objects.requireNonNull(formData.getOriginalFilename())).getName();
         try {
             // Check if the file's name contains invalid characters
@@ -103,8 +101,7 @@ import java.util.concurrent.Executors;
             throw new EntityNotFoundException("File not found " + fileName, ex);
         }
     }
-    @Override public String fromStpToX3DCalculator(MultipartFile formData) throws IOException, InterruptedException {
-        stepUtility.processStepFile(formData.getInputStream());
-        return null;
+    @Override public String fromStpToX3DCalculator(MultipartFile formData) throws IOException {
+        return stepUtility.processStepFile(formData.getInputStream());
     }
 }

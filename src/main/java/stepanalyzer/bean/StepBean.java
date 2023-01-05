@@ -9,8 +9,9 @@ import java.math.BigDecimal;
 @SuppressWarnings("serial")
 @JsonInclude(value = Include.NON_NULL)
 public class StepBean implements Serializable {
-    private String tokenStep;
+    private Long tokenStep;
     private String fileName;
+    private String x3dData;
     private BigDecimal lunghezzaX;
     private BigDecimal larghezzaY;
     private BigDecimal spessoreZ;
@@ -42,11 +43,11 @@ public class StepBean implements Serializable {
         this.volume = volume;
     }
 
-    public String getTokenStep() {
+    public Long getTokenStep() {
         return tokenStep;
     }
 
-    public void setTokenStep(String tokenStep) {
+    public void setTokenStep(Long tokenStep) {
         this.tokenStep = tokenStep;
     }
 
@@ -64,5 +65,13 @@ public class StepBean implements Serializable {
 
     public void setLarghezzaY(BigDecimal larghezzaY) {
         this.larghezzaY = larghezzaY;
+    }
+
+    public String getX3dData() {
+        return x3dData;
+    }
+
+    public void setX3dData(String x3dData) {
+        this.x3dData = x3dData;
     }
 }

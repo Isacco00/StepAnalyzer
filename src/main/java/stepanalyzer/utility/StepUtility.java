@@ -19,13 +19,13 @@ public class StepUtility {
     @Inject
     CalcUtility calcUtility;
 
-    public void processStepFile(InputStream file) throws IOException {
+    public String processStepFile(InputStream file) throws IOException {
         final FileHandler fileHandler = new FileHandler();
         Map<String, String> stepBean = loadFileAndMapIntoBean(fileHandler, file);
-        parseStepFile(stepBean);
+        return parseStepFile(stepBean);
     }
 
-    private void parseStepFile(Map<String, String> stepBean) throws IOException {
+    private String parseStepFile(Map<String, String> stepBean) throws IOException {
         String closedShellKey = "";
         for (Map.Entry<String, String> row : stepBean.entrySet()) {
             if (row.getValue().contains("CLOSED_SHELL")) {
@@ -188,7 +188,6 @@ public class StepUtility {
 //            faceGeometryFound.add("---------------------------------------------------------------------");
 //            faceGeometryFound.add("");
 
-
 //            counter++;
             //Z Reset
 
@@ -206,10 +205,12 @@ public class StepUtility {
 
         }
         String html = convertToHtml(String.join(", ", indexLineSet), String.join(",\n ", pointSet), String.join(", ", indexFaceSet));
-        PrintWriter writer = new PrintWriter("C:\\Users\\isacc\\Downloads\\test.xhtml", StandardCharsets.UTF_8);
+        String x3d = convertToX3D(String.join(", ", indexLineSet), String.join(",\n ", pointSet), String.join(", ", indexFaceSet));
+        PrintWriter writer = new PrintWriter("C:\\Users\\isacco\\Downloads\\test.xhtml", StandardCharsets.UTF_8);
         writer.println(html);
         writer.close();
         String inputFile = "C:\\Users\\isacc\\Desktop\\3DModelsToConvert\\Converted-STLs\\100x80x60r60esterno.stp.stl";
+        return x3d;
     }
 
     private String convertToHtml(String indexLineSet, String pointSet, String indexFaceSet) {
@@ -271,7 +272,55 @@ public class StepUtility {
                 """;
         return string;
     }
-
+    private String convertToX3D(String indexLineSet, String pointSet, String indexFaceSet) {
+        String position = "\"147.98 -57.9795 127.98\"";
+        String string = """
+                <X3D profile="Immersive" version="3.2" xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:noNamespaceSchemaLocation="https://www.web3d.org/specifications/x3d-3.2.xsd" width="1280px"  height="1024px">
+                \t<head>
+                \t</head>
+                \t<Scene>
+                \t\t<Viewpoint id="Iso" centerOfRotation="0 0 0" position=""" + position + """
+                \sorientation="0.742906 0.307722 0.594473 1.21712" description="camera" fieldOfView="0.9"></Viewpoint>
+                \t\t<Transform DEF="o1" translation="0 0 0" rotation="0 0 1  0" scale="1 1 1" scaleOrientation="0 0 1  0" center="0 0 0" >
+                \t\t\t<Group DEF="o2">
+                \t\t\t\t<Shape DEF="o3">
+                \t\t\t\t<Appearance DEF="o4">
+                \t\t\t\t<Material DEF="o5" emissiveColor="0.098039217 0.098039217 0.098039217" />
+                \t\t\t\t</Appearance>
+                \t\t\t\t<PointSet DEF="o6">
+                \t\t\t\t<Coordinate DEF="o7" point="\s""" + pointSet + """
+                        " />
+                \t\t\t\t</PointSet>
+                \t\t\t\t</Shape>
+                \t\t\t</Group>
+                \t\t\t<Group DEF="o8">
+                \t\t\t\t<Shape DEF="o9">
+                \t\t\t\t<Appearance DEF="o10">
+                \t\t\t\t<Material DEF="o11" diffuseColor="0.098039217 0.098039217 0.098039217" shininess="1" />
+                \t\t\t\t</Appearance>
+                \t\t\t\t<IndexedLineSet DEF="o12" coordIndex="\s""" + indexLineSet + """
+                ">
+                \t\t\t\t<Coordinate USE="o7" />
+                \t\t\t\t</IndexedLineSet>
+                \t\t\t\t</Shape>
+                \t\t\t</Group>
+                \t\t\t<!--<Group DEF="o13">
+                \t\t\t\t<Shape DEF="o14">
+                \t\t\t\t<Appearance DEF="o15">
+                \t\t\t\t<Material DEF="o16"/>
+                \t\t\t\t</Appearance>
+                \t\t\t\t<IndexedFaceSet DEF="o17" coordIndex="\s""" + indexFaceSet + """ 
+                " ccw="TRUE" solid="FALSE" convex="TRUE" creaseAngle="0.5" >
+                \t\t\t\t<Coordinate USE="o7" />
+                \t\t\t\t</IndexedFaceSet>
+                \t\t\t\t</Shape>
+                \t\t\t</Group>-->
+                \t\t</Transform>
+                \t</Scene>
+                </X3D>
+                """;
+        return string;
+    }
     int angleFromSinCos(double sinX, double cosX) {
         double angFromCos = acos(cosX);
         double angFromSin = asin(sinX);
