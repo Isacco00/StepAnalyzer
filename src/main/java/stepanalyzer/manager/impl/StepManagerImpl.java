@@ -111,6 +111,7 @@ public class StepManagerImpl implements StepManager {
     @Override
     public StepBean getStepDetail(Long tokenStep) throws IOException {
         Step entity = stepRepository.find(Step.class, tokenStep);
+        System.out.println(entity.getFileName());
         StepBean bean = stepMapper.mapEntityToBean(entity);
         InputStream stepFile = fileUtility.getStepFile(bean.getFileName());
         String x3DContent = stepUtility.processStepFile(stepFile);
