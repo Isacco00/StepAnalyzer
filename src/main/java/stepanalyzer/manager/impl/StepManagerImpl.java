@@ -1,14 +1,12 @@
 package stepanalyzer.manager.impl;
 
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import stepanalyzer.bean.DocumentBean;
 import stepanalyzer.bean.StepBean;
+import stepanalyzer.bean.stepcontent.StepContentBean;
 import stepanalyzer.entity.Step;
-import stepanalyzer.exception.EntityNotFoundException;
-import stepanalyzer.exception.FileStorageException;
 import stepanalyzer.exception.ValidationException;
 import stepanalyzer.manager.StepConverterManager;
 import stepanalyzer.manager.StepManager;
@@ -16,23 +14,22 @@ import stepanalyzer.mapper.StepMapper;
 import stepanalyzer.merger.StepMerger;
 import stepanalyzer.repository.StepRepository;
 import stepanalyzer.request.bean.StepRequestBean;
+import stepanalyzer.utility.CollectionUtils;
 import stepanalyzer.utility.FileUtility;
 import stepanalyzer.utility.StepUtility;
-import stepanalyzer.utility.StreamGobbler;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
+import org.jcae.opencascade.*;
 
 @Service
 @Transactional
@@ -95,17 +92,22 @@ public class StepManagerImpl implements StepManager {
         String fileName = fileUtility.storeFile(formData);
         StepRequestBean stepRequestBean = new StepRequestBean();
         stepRequestBean.setFileName(fileName);
-        boolean fileAlreadyUpload = stepRepository.getStepList(stepRequestBean).size() != 0;
-        if (fileAlreadyUpload) {
-            throw new FileStorageException("File già presente nel sistema");
+        List<Step> filesFound = stepRepository.getStepList(stepRequestBean);
+        StepBean bean;
+        if (filesFound.size() != 0) {
+            Step step = CollectionUtils.getSingleElement(filesFound);
+            bean = stepMapper.mapEntityToBean(step);
+            //throw new FileStorageException("File già presente nel sistema");
         } else {
-            StepBean bean = new StepBean();
+            bean = new StepBean();
             bean.setTokenStep(0L);
-            bean.setFileName(fileName);
-            Step entity = stepMerger.mapNew(bean, Step.class);
-            stepRepository.saveOrUpdate(entity);
-            return stepMapper.mapEntityToBean(entity);
         }
+        StepContentBean stepContentBean = this.processStepFile(fileName);
+        bean.setFileName(fileName);
+        bean.setStepContent(stepContentBean);
+        Step entity = stepMerger.mapNew(bean, Step.class);
+        stepRepository.saveOrUpdate(entity);
+        return stepMapper.mapEntityToBean(entity);
     }
 
     @Override
@@ -113,9 +115,30 @@ public class StepManagerImpl implements StepManager {
         Step entity = stepRepository.find(Step.class, tokenStep);
         System.out.println(entity.getFileName());
         StepBean bean = stepMapper.mapEntityToBean(entity);
-        InputStream stepFile = fileUtility.getStepFile(bean.getFileName());
-        String x3DContent = stepUtility.processStepFile(stepFile);
-        bean.setX3dData(x3DContent);
+        bean.setX3DContent(stepUtility.getX3DContent(bean.getStepContent()));
         return bean;
+    }
+
+    private StepContentBean processStepFile(String fileName) {
+        String desktopPath = System.getProperty("user.home") + "/Desktop";
+        ProcessBuilder builder = new ProcessBuilder();
+        builder.command("cmd.exe", "/c", "start", "/min", "STPCalculator.exe", "--html", "1", "--edge", "1", "--input", desktopPath + "/UploadedStepFiles/" + fileName, "--output", desktopPath + "/STPCalculator");
+        builder.directory(new File(desktopPath + "/STPCalculator/bin"));
+        try {
+            Process process = builder.start();
+            int processCompleted = process.waitFor();
+            if (processCompleted == 0) {
+                Thread.sleep(1000);
+                ObjectMapper objectMapper = new ObjectMapper();
+                Path targetLocation = Path.of(System.getProperty("user.home") + "/Desktop/STPCalculator/calculatedStep.json");
+                File jsonFile = new File(targetLocation.toUri());
+                StepContentBean stepContent = objectMapper.readValue(jsonFile, StepContentBean.class);
+                return stepContent;
+            } else {
+                throw new ValidationException("Errore calcolo file STP");
+            }
+        } catch (InterruptedException | IOException e) {
+            throw new ValidationException("Errore calcolo file STP");
+        }
     }
 }

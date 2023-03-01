@@ -7,11 +7,13 @@ import stepanalyzer.bean.stepcontent.StepContentBean;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-@SuppressWarnings("serial") @JsonInclude(value = Include.NON_NULL) public class StepBean implements Serializable {
+@SuppressWarnings("serial")
+@JsonInclude(value = Include.NON_NULL)
+public class StepBean implements Serializable {
     private Long tokenStep;
     private String fileName;
     private StepContentBean stepContent;
-    private String x3dData;
+    private String X3DContent;
     private BigDecimal lunghezzaX;
     private BigDecimal larghezzaY;
     private BigDecimal spessoreZ;
@@ -41,12 +43,12 @@ import java.math.BigDecimal;
         this.stepContent = stepContent;
     }
 
-    public String getX3dData() {
-        return x3dData;
+    public String getX3DContent() {
+        return X3DContent;
     }
 
-    public void setX3dData(String x3dData) {
-        this.x3dData = x3dData;
+    public void setX3DContent(String x3DContent) {
+        X3DContent = x3DContent;
     }
 
     public BigDecimal getLunghezzaX() {

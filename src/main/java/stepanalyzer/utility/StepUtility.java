@@ -1,12 +1,16 @@
 package stepanalyzer.utility;
 
 import org.springframework.stereotype.Component;
+import stepanalyzer.bean.stepcontent.*;
 import stepanalyzer.exception.ValidationException;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -272,6 +276,7 @@ public class StepUtility {
                 """;
         return string;
     }
+
     private String convertToX3D(String indexLineSet, String pointSet, String indexFaceSet) {
         String position = "\"147.98 -57.9795 127.98\"";
         String string = """
@@ -321,6 +326,7 @@ public class StepUtility {
                 """;
         return string;
     }
+
     int angleFromSinCos(double sinX, double cosX) {
         double angFromCos = acos(cosX);
         double angFromSin = asin(sinX);
@@ -396,5 +402,262 @@ public class StepUtility {
                 (Double.parseDouble(cartesianPoint2Values[2]) - Double.parseDouble(cartesianPoint1Values[2])), 2) + Math.pow(
                 (Double.parseDouble(cartesianPoint2Values[3]) - Double.parseDouble(cartesianPoint1Values[3])), 2);
         return Math.sqrt(v);
+    }
+
+    public String getX3DContent(StepContentBean stepContent) {
+        StringBuilder X3DData = new StringBuilder();
+        // Initial indent level
+        int level = 0;
+        // Open header
+        X3DData.append(openHeader());
+
+        // Write viewpoint
+        X3DData.append(writeViewpoint(stepContent, level + 1));
+
+        // Write model
+        X3DData.append(writeModel(stepContent, level + 1));
+
+        // Close header
+        X3DData.append(closeHeader());
+        return String.valueOf(X3DData);
+    }
+
+    private String closeHeader() {
+        StringBuilder header = new StringBuilder();
+        header.append("</Scene>\n");
+        header.append("</X3D>");
+        return String.valueOf(header);
+    }
+
+    private String writeModel(StepContentBean stepContent, int level) {
+        StringBuilder model = new StringBuilder();
+        if (stepContent.getModel().getComponents().size() >= 2) {
+            throw new ValidationException("Errore calcolo file STP");
+        } else {
+            // Write root components
+            for (int i = 0; i < stepContent.getModel().getComponents().size(); ++i) {
+                Components rootComp = stepContent.getModel().getComponents().get(i);
+                model.append(indent(level + 1));
+                model.append("<Group");
+                model.append(" DEF='").append(rootComp.getComponentName()).append("'>\n");
+                level++;
+                model.append(writeComponent(rootComp, level + 1));
+                model.append(indent(level + 1));
+                model.append("</Group>\n");
+            }
+        }
+        return String.valueOf(model);
+    }
+
+    private String writeComponent(Components rootComp, int level) {
+        StringBuilder component = new StringBuilder();
+        // Write shape nodes
+        for (int i = 0; i < rootComp.getShapes().size(); ++i) {
+            Shapes iShape = rootComp.getShapes().get(i);
+            component.append(writeShape(iShape, level + 1, i));
+        }
+        return String.valueOf(component);
+    }
+
+    private String writeShape(Shapes iShape, int level, int index) {
+        StringBuilder shapes = new StringBuilder();
+        shapes.append(indent(level));
+        shapes.append("<Shape");
+        shapes.append(" id='").append(iShape.getShapeID()).append("'");
+        shapes.append("DEF='").append(iShape.getShapeName()).append("'");
+        shapes.append(">\n");
+        shapes.append(writeIndexedFaceSet(iShape, level + 1, index));
+        shapes.append(indent(level));
+        shapes.append("</Shape>\n");
+        shapes.append(indent(level));
+        shapes.append("<Shape");
+        shapes.append(" id='").append(iShape.getShapeID()).append("'");
+        shapes.append("DEF='").append(iShape.getShapeName() + "_edges").append("'");
+        shapes.append(">\n");
+        shapes.append(writeIndexedLineSet(iShape, level + 1, index + 1));
+        shapes.append(indent(level));
+        shapes.append("</Shape>\n");
+        return String.valueOf(shapes);
+    }
+
+    private String writeIndexedLineSet(Shapes iShape, int level, int index) {
+        StringBuilder edges = new StringBuilder();
+        edges.append(writeAppearance(iShape, index));
+        // Open IndexedFaceSet
+        edges.append(indent(level));
+        edges.append("<IndexedLineSet");
+        edges.append(writeCoordinateIndex(iShape, false));
+        edges.append(">\n");
+        // Write coordinates
+        edges.append(indent(level + 1));
+        edges.append(writeCoordinate(iShape, true));
+        // Close IndexedFaceSet
+        edges.append(indent(level));
+        edges.append("</IndexedLineSet>\n");
+        return String.valueOf(edges);
+    }
+
+    private String writeIndexedFaceSet(Shapes iShape, int level, int index) {
+        StringBuilder shapes = new StringBuilder();
+        shapes.append(writeAppearance(iShape, index));
+        // Open IndexedFaceSet
+        shapes.append(indent(level));
+        shapes.append("<IndexedFaceSet");
+        shapes.append(" creaseAngle='").append(calcUtility.roundNDecimal(iShape.getFaceSet().getCreaseAngle(), 2)).append("'");
+        shapes.append(" solid='false'");
+
+        shapes.append(writeCoordinateIndex(iShape, true));
+
+        shapes.append(">\n");
+
+        // Write coordinates
+        shapes.append(indent(level + 1));
+        shapes.append(writeCoordinate(iShape, false));
+
+        // Close IndexedFaceSet
+        shapes.append(indent(level));
+        shapes.append("</IndexedFaceSet>\n");
+        return String.valueOf(shapes);
+    }
+
+    private String writeCoordinate(Shapes iShape, boolean isBoundaryEdges) {
+        StringBuilder coordinates = new StringBuilder();
+        coordinates.append("<Coordinate");
+
+        if (!isBoundaryEdges) {
+            coordinates.append(" DEF='c1").append("'");
+            coordinates.append(" point='");
+
+            for (int i = 0; i < iShape.getMesh().size(); ++i) {
+                Mesh mesh = iShape.getMesh().get(i);
+
+                for (int j = 0; j < mesh.getCoordinates().size(); ++j) {
+                    Coordinate coord = mesh.getCoordinates().get(j);
+
+                    coordinates.append(calcUtility.round2Decimal(coord.getX())).append(" ");
+                    coordinates.append(calcUtility.round2Decimal(coord.getY())).append(" ");
+                    coordinates.append(calcUtility.round2Decimal(coord.getZ())).append(" ");
+                }
+            }
+        } else {
+            coordinates.append(" USE='c1");
+        }
+        coordinates.append("'></Coordinate>\n");
+        return String.valueOf(coordinates);
+    }
+
+    private String writeCoordinateIndex(Shapes iShape, boolean faceMesh) {
+        StringBuilder coordinateIndex = new StringBuilder();
+        coordinateIndex.append(" coordIndex='");
+        for (int i = 0; i < iShape.getMesh().size(); ++i) {
+            Mesh mesh = iShape.getMesh().get(i);
+            if (faceMesh) {// Face mesh
+                coordinateIndex.append(mesh.getCoordIndex());
+            } else { // Edge mesh (Boundary edges, sketch geometry)
+                coordinateIndex.append(mesh.getEdgeIndex());
+            }
+        }
+        coordinateIndex.append("'");
+        return String.valueOf(coordinateIndex);
+    }
+
+    private String writeAppearance(Shapes iShape, int index) {
+        Appearance appearance = iShape.getAppearance();
+        StringBuilder appearanceBuilder = new StringBuilder();
+        // Write Appearance node
+        appearanceBuilder.append("<Appearance");
+        appearanceBuilder.append(" DEF='app").append(index).append("'");
+        appearanceBuilder.append("><Material");
+        appearanceBuilder.append(" id='mat").append(index).append("'");
+
+        Color diffuseColor = appearance.getDiffuseColor();
+        if (diffuseColor != null) {
+            appearanceBuilder.append(" diffuseColor='");
+            appearanceBuilder.append(calcUtility.round2Decimal(diffuseColor.getRed())).append(" ");
+            appearanceBuilder.append(calcUtility.round2Decimal(diffuseColor.getGreen())).append(" ");
+            appearanceBuilder.append(calcUtility.round2Decimal(diffuseColor.getBlue())).append("'");
+        }
+        Color specularColor = appearance.getSpecularColor();
+        if (specularColor != null) {
+            appearanceBuilder.append(" specularColor='");
+            appearanceBuilder.append(calcUtility.round2Decimal(specularColor.getRed())).append(" ");
+            appearanceBuilder.append(calcUtility.round2Decimal(specularColor.getGreen())).append(" ");
+            appearanceBuilder.append(calcUtility.round2Decimal(specularColor.getBlue())).append("'");
+        }
+        appearanceBuilder.append(" shininess='");
+        appearanceBuilder.append(calcUtility.roundNDecimal(appearance.getShininess(), 2)).append("'");
+
+        appearanceBuilder.append("></Material></Appearance>\n");
+        return String.valueOf(appearanceBuilder);
+    }
+
+    private String writeViewpoint(StepContentBean stepContent, int level) {
+        StringBuilder viewPoint = new StringBuilder();
+        BoundingBox boundingBox = stepContent.getModel().getBoundingBox();
+        BigDecimal xMin = boundingBox.getxMin();
+        BigDecimal yMin = boundingBox.getyMin();
+        BigDecimal zMin = boundingBox.getzMin();
+        BigDecimal xMax = boundingBox.getxMax();
+        BigDecimal yMax = boundingBox.getyMax();
+        BigDecimal zMax = boundingBox.getzMax();
+
+        BigDecimal xMean = calcUtility.divide(calcUtility.sumBigDecimalValues(xMin, xMax), BigDecimal.valueOf(2));
+        BigDecimal yMean = calcUtility.divide(calcUtility.sumBigDecimalValues(yMin, yMax), BigDecimal.valueOf(2));
+        BigDecimal zMean = calcUtility.divide(calcUtility.sumBigDecimalValues(zMin, zMax), BigDecimal.valueOf(2));
+
+        BigDecimal xPos = xMean;
+        BigDecimal yPos = yMean;
+        BigDecimal zPos = zMean;
+
+        BigDecimal xOri = BigDecimal.valueOf(1.0);
+        BigDecimal yOri = BigDecimal.valueOf(0.0);
+        BigDecimal zOri = BigDecimal.valueOf(0.0);
+        BigDecimal rOri = calcUtility.divide(BigDecimal.valueOf(PI), BigDecimal.valueOf(2));
+
+        BigDecimal xGap = calcUtility.subtractBigDecimalValues(xMax, xMin);
+        BigDecimal yGap = calcUtility.subtractBigDecimalValues(yMax, yMin);
+        BigDecimal zGap = calcUtility.subtractBigDecimalValues(zMax, zMin);
+
+        if (xGap.compareTo(yGap) >= 0 && xGap.compareTo(zGap) >= 0) {
+            yPos = calcUtility.multiply(xGap, BigDecimal.valueOf(-2));
+        } else if (yGap.compareTo(xGap) >= 0 && yGap.compareTo(zGap) >= 0) {
+            yPos = calcUtility.multiply(yGap, BigDecimal.valueOf(-2));
+        } else if (zGap.compareTo(xGap) >= 0 && zGap.compareTo(yGap) >= 0) {
+            yPos = calcUtility.multiply(zGap, BigDecimal.valueOf(-2));
+        }
+        viewPoint.append(indent(level));
+        viewPoint.append("<Viewpoint");
+
+        viewPoint.append(" position='");
+        viewPoint.append(calcUtility.round2Decimal(xPos)).append(" ");
+        viewPoint.append(calcUtility.round2Decimal(yPos)).append(" ");
+        viewPoint.append(calcUtility.round2Decimal(zPos)).append("'");
+
+        viewPoint.append(" orientation='");
+        viewPoint.append(calcUtility.round2Decimal(xOri)).append(" ");
+        viewPoint.append(calcUtility.round2Decimal(yOri)).append(" ");
+        viewPoint.append(calcUtility.round2Decimal(zOri)).append(" ");
+        viewPoint.append(calcUtility.round2Decimal(rOri)).append("'");
+
+        viewPoint.append(" centerOfRotation='");
+        viewPoint.append(calcUtility.round2Decimal(xMean)).append(" ");
+        viewPoint.append(calcUtility.round2Decimal(yMean)).append(" ");
+        viewPoint.append(calcUtility.round2Decimal(zMean)).append("'");
+
+        viewPoint.append("></Viewpoint>\n");
+        return String.valueOf(viewPoint);
+    }
+
+    private String indent(int level) {
+        String unit = " ";    // space or tab
+        return unit.repeat(Math.max(0, level));
+    }
+
+    private String openHeader() {
+        String header = """
+                <X3D version='3.3'>
+                <Scene>
+                """;
+        return String.valueOf(header);
     }
 }
