@@ -9,17 +9,17 @@ import stepanalyzer.exception.FileStorageException;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 @Component
 public class FileUtility {
     public String storeFile(MultipartFile formData) throws IOException {
-        File directory = new File(Path.of(System.getProperty("user.home") + "/Desktop/UploadedStepFiles/").toUri());
+        File directory = new File(Paths.get(System.getProperty("user.home") + "/Desktop/UploadedStepFiles/").toUri());
         if (!directory.exists()) {
-            Files.createDirectories(Path.of(System.getProperty("user.home") + "/Desktop/UploadedStepFiles/"));
+            Files.createDirectories(Paths.get(System.getProperty("user.home") + "/Desktop/UploadedStepFiles/"));
         }
         String fileName = new File(Objects.requireNonNull(formData.getOriginalFilename())).getName();
         String extension = "";
@@ -32,7 +32,7 @@ public class FileUtility {
         }
         try {
             // Copy file to the target location (Replacing existing file with the same name)
-            Path targetLocation = Path.of(System.getProperty("user.home") + "/Desktop/UploadedStepFiles/" + fileName);
+            Path targetLocation = Paths.get(System.getProperty("user.home") + "/Desktop/UploadedStepFiles/" + fileName);
             Files.copy(formData.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
             return targetLocation.toFile().getName();
         } catch (IOException ex) {
@@ -40,15 +40,17 @@ public class FileUtility {
         }
     }
 
-    public InputStream getStepFile(String fileName) {
+    public byte[] getFile(String fileName) {
         try {
-            Path targetLocation = Path.of(System.getProperty("user.home") + "/Desktop/UploadedStepFiles/" + fileName);
-            File stepFile = new File(targetLocation.toUri());
-            return new FileInputStream(stepFile);
+            Path targetLocation = Paths.get(System.getProperty("user.home") + "/Desktop/UploadedStepFiles/" + fileName);
+            byte[] data = Files.readAllBytes(targetLocation);
+            return data;
         } catch (FileNotFoundException e) {
             System.out.println("Errore interno");
             e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return null;
     }
 }

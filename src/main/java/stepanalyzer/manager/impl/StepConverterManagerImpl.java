@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.concurrent.Executors;
@@ -80,7 +81,7 @@ import java.util.concurrent.Executors;
                 throw new FileStorageException("Sorry! Filename contains invalid path sequence " + fileName);
             }
             // Copy file to the target location (Replacing existing file with the same name)
-            Path targetLocation = Path.of(System.getProperty("user.home") + "/Desktop/3DModelsToConvert/" + fileName);
+            Path targetLocation = Paths.get(System.getProperty("user.home") + "/Desktop/3DModelsToConvert/" + fileName);
             Files.copy(formData.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
             return targetLocation.toFile().getName();
         } catch (IOException ex) {
@@ -90,7 +91,7 @@ import java.util.concurrent.Executors;
 
     public Resource loadFileAsResource(String fileName) {
         try {
-            Path filePath = Path.of(fileName);
+            Path filePath = Paths.get(fileName);
             Resource resource = new UrlResource(filePath.toUri());
             if (resource.exists()) {
                 return resource;

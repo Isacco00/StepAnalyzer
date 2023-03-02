@@ -210,7 +210,7 @@ public class StepUtility {
         }
         String html = convertToHtml(String.join(", ", indexLineSet), String.join(",\n ", pointSet), String.join(", ", indexFaceSet));
         String x3d = convertToX3D(String.join(", ", indexLineSet), String.join(",\n ", pointSet), String.join(", ", indexFaceSet));
-        PrintWriter writer = new PrintWriter("C:\\Users\\isacco\\Downloads\\test.xhtml", StandardCharsets.UTF_8);
+        PrintWriter writer = new PrintWriter("C:\\Users\\isacco\\Downloads\\test.xhtml", String.valueOf(StandardCharsets.UTF_8));
         writer.println(html);
         writer.close();
         String inputFile = "C:\\Users\\isacc\\Desktop\\3DModelsToConvert\\Converted-STLs\\100x80x60r60esterno.stp.stl";
@@ -219,6 +219,7 @@ public class StepUtility {
 
     private String convertToHtml(String indexLineSet, String pointSet, String indexFaceSet) {
         String position = "\"147.98 -57.9795 127.98\"";
+        /*
         String string = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -263,7 +264,7 @@ public class StepUtility {
                 \t\t\t\t<Appearance DEF="o15">
                 \t\t\t\t<Material DEF="o16"/>
                 \t\t\t\t</Appearance>
-                \t\t\t\t<IndexedFaceSet DEF="o17" coordIndex="\s""" + indexFaceSet + """ 
+                \t\t\t\t<IndexedFaceSet DEF="o17" coordIndex="\s""" + indexFaceSet + """
                 " ccw="TRUE" solid="FALSE" convex="TRUE" creaseAngle="0.5" >
                 \t\t\t\t<Coordinate USE="o7" />
                 \t\t\t\t</IndexedFaceSet>
@@ -274,11 +275,14 @@ public class StepUtility {
                 </X3D>
                 </html>
                 """;
-        return string;
+
+         */
+        return position;
     }
 
     private String convertToX3D(String indexLineSet, String pointSet, String indexFaceSet) {
         String position = "\"147.98 -57.9795 127.98\"";
+        /*
         String string = """
                 <X3D profile="Immersive" version="3.2" xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:noNamespaceSchemaLocation="https://www.web3d.org/specifications/x3d-3.2.xsd" width="1280px"  height="1024px">
                 \t<head>
@@ -324,7 +328,9 @@ public class StepUtility {
                 \t</Scene>
                 </X3D>
                 """;
-        return string;
+
+         */
+        return position;
     }
 
     int angleFromSinCos(double sinX, double cosX) {
@@ -650,14 +656,12 @@ public class StepUtility {
 
     private String indent(int level) {
         String unit = " ";    // space or tab
-        return unit.repeat(Math.max(0, level));
+        //return unit.repeat(Math.max(0, level));
+        return unit;
     }
 
     private String openHeader() {
-        String header = """
-                <X3D version='3.3'>
-                <Scene>
-                """;
+        String header = "<X3D version='3.3'><Scene>";
         return String.valueOf(header);
     }
 }

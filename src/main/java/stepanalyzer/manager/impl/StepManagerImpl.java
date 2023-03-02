@@ -1,6 +1,7 @@
 package stepanalyzer.manager.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jcae.opencascade.jni.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import stepanalyzer.bean.DocumentBean;
@@ -14,11 +15,13 @@ import stepanalyzer.mapper.StepMapper;
 import stepanalyzer.merger.StepMerger;
 import stepanalyzer.repository.StepRepository;
 import stepanalyzer.request.bean.StepRequestBean;
+import stepanalyzer.stepmodel.ModelBean;
 import stepanalyzer.utility.CollectionUtils;
 import stepanalyzer.utility.FileUtility;
 import stepanalyzer.utility.StepUtility;
 
 import javax.inject.Inject;
+import javax.jws.WebParam;
 import javax.transaction.Transactional;
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,10 +29,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-import org.jcae.opencascade.*;
 
 @Service
 @Transactional
@@ -64,14 +67,17 @@ public class StepManagerImpl implements StepManager {
             int counter = 0;
             while ((line = reader.readLine()) != null) {
                 switch (counter) {
-                    case 0 -> {
+                    case 0:
                         String[] lunghezze = line.split(";");
                         bean.setLunghezzaX(new BigDecimal(lunghezze[0]));
                         bean.setLarghezzaY(new BigDecimal(lunghezze[1]));
                         bean.setSpessoreZ(new BigDecimal(lunghezze[2]));
-                    }
-                    case 1 -> bean.setVolume(new BigDecimal(line));
-                    default -> throw new ValidationException("Errore calcolo file STP");
+                        break;
+                    case 1:
+                        bean.setVolume(new BigDecimal(line));
+                        break;
+                    default:
+                        throw new ValidationException("Errore calcolo file STP");
                 }
                 counter++;
             }
@@ -90,6 +96,7 @@ public class StepManagerImpl implements StepManager {
     @Override
     public StepBean uploadStepFile(MultipartFile formData) throws IOException {
         String fileName = fileUtility.storeFile(formData);
+        ModelBean stepModelBean = readStepFile(fileName);
         StepRequestBean stepRequestBean = new StepRequestBean();
         stepRequestBean.setFileName(fileName);
         List<Step> filesFound = stepRepository.getStepList(stepRequestBean);
@@ -119,6 +126,40 @@ public class StepManagerImpl implements StepManager {
         return bean;
     }
 
+    private ModelBean readStepFile(String fileName) {
+        ModelBean modelBean = new ModelBean();
+        IFSelect_ReturnStatus status;
+        STEPControl_Reader reader = new STEPControl_Reader();
+        status = reader.readFile(System.getProperty("user.home") + "/Desktop/UploadedStepFiles/" + fileName);
+        if (checkReturnStatus(status)) {
+            if (reader.transferRoots() > 0) {
+                TopoDS_Shape shape = reader.oneShape();
+                TopExp_Explorer expFace = new TopExp_Explorer();
+                expFace.init(shape, TopAbs_ShapeEnum.FACE);
+                modelBean.setShape(shape);
+                modelBean.setFaceSet(expFace.more());
+            }
+        }
+        return modelBean;
+    }
+
+    private boolean checkReturnStatus(IFSelect_ReturnStatus status) {
+        switch (status) {
+            case ERROR:
+                throw new ValidationException("Not a valid STEP file.\n");
+            case FAIL:
+                throw new ValidationException("Reading STEP has failed.\n");
+            case VOID:
+                throw new ValidationException("STEP file is empty.\n");
+            case STOP:
+                throw new ValidationException("Reading STEP has stopped.\n");
+            case DONE:
+                return true;
+            default:
+                throw new ValidationException("Error reading STEP file");
+        }
+    }
+
     private StepContentBean processStepFile(String fileName) {
         String desktopPath = System.getProperty("user.home") + "/Desktop";
         ProcessBuilder builder = new ProcessBuilder();
@@ -130,7 +171,7 @@ public class StepManagerImpl implements StepManager {
             if (processCompleted == 0) {
                 Thread.sleep(1000);
                 ObjectMapper objectMapper = new ObjectMapper();
-                Path targetLocation = Path.of(System.getProperty("user.home") + "/Desktop/STPCalculator/calculatedStep.json");
+                Path targetLocation = Paths.get(System.getProperty("user.home") + "/Desktop/STPCalculator/calculatedStep.json");
                 File jsonFile = new File(targetLocation.toUri());
                 StepContentBean stepContent = objectMapper.readValue(jsonFile, StepContentBean.class);
                 return stepContent;
