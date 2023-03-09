@@ -1,7 +1,6 @@
 package stepanalyzer.manager.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jcae.opencascade.jni.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import stepanalyzer.bean.DocumentBean;
@@ -15,13 +14,12 @@ import stepanalyzer.mapper.StepMapper;
 import stepanalyzer.merger.StepMerger;
 import stepanalyzer.repository.StepRepository;
 import stepanalyzer.request.bean.StepRequestBean;
-import stepanalyzer.stepmodel.ModelBean;
+import stepanalyzer.utility.CalcUtility;
 import stepanalyzer.utility.CollectionUtils;
 import stepanalyzer.utility.FileUtility;
 import stepanalyzer.utility.StepUtility;
 
 import javax.inject.Inject;
-import javax.jws.WebParam;
 import javax.transaction.Transactional;
 import java.io.BufferedReader;
 import java.io.File;
@@ -50,6 +48,8 @@ public class StepManagerImpl implements StepManager {
     StepMapper stepMapper;
     @Inject
     StepMerger stepMerger;
+    @Inject
+    CalcUtility calcUtility;
 
     @Override
     public StepBean stpCalculator(MultipartFile file) throws IOException, ExecutionException, InterruptedException, TimeoutException {
@@ -96,7 +96,6 @@ public class StepManagerImpl implements StepManager {
     @Override
     public StepBean uploadStepFile(MultipartFile formData) throws IOException {
         String fileName = fileUtility.storeFile(formData);
-        ModelBean stepModelBean = readStepFile(fileName);
         StepRequestBean stepRequestBean = new StepRequestBean();
         stepRequestBean.setFileName(fileName);
         List<Step> filesFound = stepRepository.getStepList(stepRequestBean);
@@ -126,44 +125,10 @@ public class StepManagerImpl implements StepManager {
         return bean;
     }
 
-    private ModelBean readStepFile(String fileName) {
-        ModelBean modelBean = new ModelBean();
-        IFSelect_ReturnStatus status;
-        STEPControl_Reader reader = new STEPControl_Reader();
-        status = reader.readFile(System.getProperty("user.home") + "/Desktop/UploadedStepFiles/" + fileName);
-        if (checkReturnStatus(status)) {
-            if (reader.transferRoots() > 0) {
-                TopoDS_Shape shape = reader.oneShape();
-                TopExp_Explorer expFace = new TopExp_Explorer();
-                expFace.init(shape, TopAbs_ShapeEnum.FACE);
-                modelBean.setShape(shape);
-                modelBean.setFaceSet(expFace.more());
-            }
-        }
-        return modelBean;
-    }
-
-    private boolean checkReturnStatus(IFSelect_ReturnStatus status) {
-        switch (status) {
-            case ERROR:
-                throw new ValidationException("Not a valid STEP file.\n");
-            case FAIL:
-                throw new ValidationException("Reading STEP has failed.\n");
-            case VOID:
-                throw new ValidationException("STEP file is empty.\n");
-            case STOP:
-                throw new ValidationException("Reading STEP has stopped.\n");
-            case DONE:
-                return true;
-            default:
-                throw new ValidationException("Error reading STEP file");
-        }
-    }
-
     private StepContentBean processStepFile(String fileName) {
         String desktopPath = System.getProperty("user.home") + "/Desktop";
         ProcessBuilder builder = new ProcessBuilder();
-        builder.command("cmd.exe", "/c", "start", "/min", "STPCalculator.exe", "--html", "1", "--edge", "1", "--input", desktopPath + "/UploadedStepFiles/" + fileName, "--output", desktopPath + "/STPCalculator");
+        builder.command("cmd.exe", "/c", "start", "/min", "STPCalculator.exe", "--input", desktopPath + "/UploadedStepFiles/" + fileName, "--output", desktopPath + "/STPCalculator");
         builder.directory(new File(desktopPath + "/STPCalculator/bin"));
         try {
             Process process = builder.start();

@@ -1,11 +1,21 @@
 package stepanalyzer.bean.stepcontent;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class Mesh {
     String coordIndex;
     List<Coordinate> coordinates;
     String edgeIndex;
+    BigDecimal edgePerimeter;
+
+    public BigDecimal getEdgePerimeter() {
+        return edgePerimeter;
+    }
+
+    public void setEdgePerimeter(BigDecimal edgePerimeter) {
+        this.edgePerimeter = edgePerimeter;
+    }
 
     public String getCoordIndex() {
         return coordIndex;
