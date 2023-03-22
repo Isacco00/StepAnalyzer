@@ -12,11 +12,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 @RestController
-@RequestMapping("/dashboard")
+@RequestMapping(RestServicePath.DASHBOARD)
 public interface RestServiceDashboard {
 
     @GetMapping("/getStepBeanList")
     List<StepBean> getStepBeanList();
+    @GetMapping("/testGet")
+    String testGet();
 
     @PostMapping("/uploadStepFile")
     StepBean uploadStepFile(@RequestParam("file") MultipartFile formData) throws IOException;

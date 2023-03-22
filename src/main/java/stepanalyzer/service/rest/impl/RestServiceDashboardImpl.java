@@ -18,7 +18,10 @@ import java.util.List;
     public List<StepBean> getStepBeanList() {
         return stepManager.getStepBeanList();
     }
-
+    @Override
+    public String testGet() {
+        return "Hello world";
+    }
     @Override
     public StepBean uploadStepFile(MultipartFile formData) throws IOException {
         return stepManager.uploadStepFile(formData);
