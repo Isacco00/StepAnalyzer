@@ -11,7 +11,7 @@ import javax.ws.rs.PathParam;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/stepViewer")
+@RequestMapping(RestServicePath.STEPVIEWER)
 public interface RestServiceStepViewer {
 
     @GetMapping("/getStepDetail/{token}")

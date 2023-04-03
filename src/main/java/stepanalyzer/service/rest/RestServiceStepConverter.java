@@ -10,20 +10,26 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-@RestController @RequestMapping("/stpConverter") public interface RestServiceStepConverter {
+@RestController
+@RequestMapping(RestServicePath.STEPCONVERTER)
+public interface RestServiceStepConverter {
 
-    @PostMapping("/fromStpToX3D") String fromStpToX3D(@RequestParam("file") MultipartFile formData)
-        throws IOException, ExecutionException, InterruptedException, TimeoutException;
+    @PostMapping("/fromStpToX3D")
+    String fromStpToX3D(@RequestParam("file") MultipartFile formData)
+            throws IOException, ExecutionException, InterruptedException, TimeoutException;
 
-    @PostMapping("/fromStpToStl") ResponseEntity<Resource> fromStpToStl(@RequestParam("file") MultipartFile formData)
-        throws IOException, ExecutionException, InterruptedException, TimeoutException;
+    @PostMapping("/fromStpToStl")
+    ResponseEntity<Resource> fromStpToStl(@RequestParam("file") MultipartFile formData)
+            throws IOException, ExecutionException, InterruptedException, TimeoutException;
 
     @PostMapping("/stpCalculator")
     StepBean stpCalculator(@RequestParam("file") MultipartFile formData)
-        throws IOException, ExecutionException, InterruptedException, TimeoutException;
+            throws IOException, ExecutionException, InterruptedException, TimeoutException;
 
-    @GetMapping("/testGet") String testGet();
+    @GetMapping("/testGet")
+    String testGet();
 
-    @PostMapping("/fromStpToX3DCalculator") String fromStpToX3DCalculator(@RequestParam("file") MultipartFile formData)
+    @PostMapping("/fromStpToX3DCalculator")
+    String fromStpToX3DCalculator(@RequestParam("file") MultipartFile formData)
             throws IOException, ExecutionException, InterruptedException, TimeoutException;
 }

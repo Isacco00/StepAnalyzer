@@ -130,6 +130,7 @@ public class StepManagerImpl implements StepManager {
         ProcessBuilder builder = new ProcessBuilder();
         builder.command("cmd.exe", "/c", "start", "/min", "STPCalculator.exe", "--input", desktopPath + "/UploadedStepFiles/" + fileName, "--output", desktopPath + "/STPCalculator");
         builder.directory(new File(desktopPath + "/STPCalculator/bin"));
+        builder.redirectErrorStream(true);
         try {
             Process process = builder.start();
             int processCompleted = process.waitFor();
