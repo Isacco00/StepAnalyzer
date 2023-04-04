@@ -133,6 +133,12 @@ public class StepManagerImpl implements StepManager {
         builder.redirectErrorStream(true);
         try {
             Process process = builder.start();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println(line);
+                }
+            }
             int processCompleted = process.waitFor();
             if (processCompleted == 0) {
                 Thread.sleep(1000);
