@@ -10,7 +10,7 @@ import stepanalyzer.entity.Step;
 import stepanalyzer.exception.ValidationException;
 import stepanalyzer.manager.StepConverterManager;
 import stepanalyzer.manager.StepManager;
-import stepanalyzer.mapper.StepMapper;
+import stepanalyzer.mapper.StepDetailMapper;
 import stepanalyzer.merger.StepMerger;
 import stepanalyzer.repository.StepRepository;
 import stepanalyzer.request.bean.StepRequestBean;
@@ -45,7 +45,7 @@ public class StepManagerImpl implements StepManager {
     @Inject
     StepRepository stepRepository;
     @Inject
-    StepMapper stepMapper;
+    StepDetailMapper stepDetailMapper;
     @Inject
     StepMerger stepMerger;
     @Inject
@@ -90,7 +90,7 @@ public class StepManagerImpl implements StepManager {
 
     @Override
     public List<StepBean> getStepBeanList() {
-        return stepMapper.mapEntitiesToBeans(stepRepository.getStepList(new StepRequestBean()));
+        return stepDetailMapper.mapEntitiesToBeans(stepRepository.getStepList(new StepRequestBean()));
     }
 
     @Override
@@ -102,7 +102,7 @@ public class StepManagerImpl implements StepManager {
         StepBean bean;
         if (filesFound.size() != 0) {
             Step step = CollectionUtils.getSingleElement(filesFound);
-            bean = stepMapper.mapEntityToBean(step);
+            bean = stepDetailMapper.mapEntityToBean(step);
             //throw new FileStorageException("File già presente nel sistema");
         } else {
             bean = new StepBean();
@@ -113,14 +113,14 @@ public class StepManagerImpl implements StepManager {
         bean.setStepContent(stepContentBean);
         Step entity = stepMerger.mapNew(bean, Step.class);
         stepRepository.saveOrUpdate(entity);
-        return stepMapper.mapEntityToBean(entity);
+        return stepDetailMapper.mapEntityToBean(entity);
     }
 
     @Override
     public StepBean getStepDetail(Long tokenStep) throws IOException {
         Step entity = stepRepository.find(Step.class, tokenStep);
         System.out.println(entity.getFileName());
-        StepBean bean = stepMapper.mapEntityToBean(entity);
+        StepBean bean = stepDetailMapper.mapEntityToBean(entity);
         bean.setX3DContent(stepUtility.getX3DContent(bean.getStepContent()));
         return bean;
     }

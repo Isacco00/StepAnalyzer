@@ -7,15 +7,27 @@ import stepanalyzer.bean.StepBean;
 import stepanalyzer.bean.stepcontent.StepContentBean;
 import stepanalyzer.entity.Step;
 
-@Component public class StepMapper extends AbstractMapper<Step, StepBean> {
+import javax.inject.Inject;
+
+@Component
+public class StepDetailMapper extends AbstractMapper<Step, StepBean> {
+
+    @Inject
+    private StepMapper stepMapper;
 
     protected StepBean doMapping(Step entity) {
         return doMapping(new StepBean(), entity);
     }
 
     protected StepBean doMapping(StepBean bean, Step entity) {
-        bean.setTokenStep(entity.getTokenStep());
-        bean.setFileName(entity.getFileName());
+        stepMapper.mapEntityToBean(bean, entity);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            bean.setStepContent(objectMapper.readValue(entity.getStepContent(), StepContentBean.class));
+        } catch (JsonProcessingException ex) {
+            System.out.println(ex.getMessage());
+        }
         return bean;
     }
 
