@@ -11,6 +11,7 @@ import stepanalyzer.exception.ValidationException;
 import stepanalyzer.manager.StepConverterManager;
 import stepanalyzer.manager.StepManager;
 import stepanalyzer.mapper.StepDetailMapper;
+import stepanalyzer.mapper.StepMapper;
 import stepanalyzer.merger.StepMerger;
 import stepanalyzer.repository.StepRepository;
 import stepanalyzer.request.bean.StepRequestBean;
@@ -46,6 +47,8 @@ public class StepManagerImpl implements StepManager {
     StepRepository stepRepository;
     @Inject
     StepDetailMapper stepDetailMapper;
+    @Inject
+    StepMapper stepMapper;
     @Inject
     StepMerger stepMerger;
     @Inject
@@ -90,7 +93,7 @@ public class StepManagerImpl implements StepManager {
 
     @Override
     public List<StepBean> getStepBeanList() {
-        return stepDetailMapper.mapEntitiesToBeans(stepRepository.getStepList(new StepRequestBean()));
+        return stepMapper.mapEntitiesToBeans(stepRepository.getStepList(new StepRequestBean()));
     }
 
     @Override
