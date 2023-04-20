@@ -12,12 +12,15 @@ import java.math.BigDecimal;
 public class StepBean implements Serializable {
     private Long tokenStep;
     private String fileName;
+    private String createdBy;
+    private String action;
     private StepContentBean stepContent;
     private String X3DContent;
     private BigDecimal lunghezzaX;
     private BigDecimal larghezzaY;
     private BigDecimal spessoreZ;
     private BigDecimal volume;
+    private BigDecimal perimetro;
 
     public Long getTokenStep() {
         return tokenStep;
@@ -81,5 +84,29 @@ public class StepBean implements Serializable {
 
     public void setVolume(BigDecimal volume) {
         this.volume = volume;
+    }
+
+    public BigDecimal getPerimetro() {
+        return perimetro;
+    }
+
+    public void setPerimetro(BigDecimal perimetro) {
+        this.perimetro = perimetro;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
     }
 }

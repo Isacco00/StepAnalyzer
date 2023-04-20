@@ -16,6 +16,7 @@ import stepanalyzer.entity.Step;
     protected StepBean doMapping(StepBean bean, Step entity) {
         bean.setTokenStep(entity.getTokenStep());
         bean.setFileName(entity.getFileName());
+        bean.setAction(entity.getAction());
         return bean;
     }
 

@@ -21,6 +21,7 @@ import stepanalyzer.utility.FileUtility;
 import stepanalyzer.utility.StepUtility;
 
 import javax.inject.Inject;
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.io.BufferedReader;
 import java.io.File;
@@ -63,24 +64,20 @@ public class StepManagerImpl implements StepManager {
         Process process = builder.start();
         int exitCode = process.waitFor();
         if (exitCode == 0) {
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line = null;
             StepBean bean = new StepBean();
             int counter = 0;
             while ((line = reader.readLine()) != null) {
                 switch (counter) {
-                    case 0:
+                    case 0 -> {
                         String[] lunghezze = line.split(";");
                         bean.setLunghezzaX(new BigDecimal(lunghezze[0]));
                         bean.setLarghezzaY(new BigDecimal(lunghezze[1]));
                         bean.setSpessoreZ(new BigDecimal(lunghezze[2]));
-                        break;
-                    case 1:
-                        bean.setVolume(new BigDecimal(line));
-                        break;
-                    default:
-                        throw new ValidationException("Errore calcolo file STP");
+                    }
+                    case 1 -> bean.setVolume(new BigDecimal(line));
+                    default -> throw new ValidationException("Errore calcolo file STP");
                 }
                 counter++;
             }
@@ -111,18 +108,27 @@ public class StepManagerImpl implements StepManager {
             bean = new StepBean();
             bean.setTokenStep(0L);
         }
-        StepContentBean stepContentBean = this.processStepFile(fileName);
+        //StepContentBean stepContentBean = this.processStepFile(fileName);
         bean.setFileName(fileName);
-        bean.setStepContent(stepContentBean);
-        Step entity = stepMerger.mapNew(bean, Step.class);
-        stepRepository.saveOrUpdate(entity);
+        bean.setAction("Calculating");
+        //bean.setStepContent(stepContentBean);
+        Step entity;
+        if (bean.getTokenStep() == 0) {
+            entity = stepMerger.mapNew(bean, Step.class);
+        } else {
+            entity = stepRepository.find(Step.class, bean.getTokenStep());
+            if (entity == null) {
+                throw new EntityNotFoundException();
+            }
+            stepMerger.merge(bean, entity);
+        }
+        this.stepRepository.save(entity);
         return stepDetailMapper.mapEntityToBean(entity);
     }
 
     @Override
     public StepBean getStepDetail(Long tokenStep) throws IOException {
         Step entity = stepRepository.find(Step.class, tokenStep);
-        System.out.println(entity.getFileName());
         StepBean bean = stepDetailMapper.mapEntityToBean(entity);
         bean.setX3DContent(stepUtility.getX3DContent(bean.getStepContent()));
         return bean;
@@ -131,25 +137,18 @@ public class StepManagerImpl implements StepManager {
     private StepContentBean processStepFile(String fileName) {
         String desktopPath = System.getProperty("user.home") + "/Desktop";
         ProcessBuilder builder = new ProcessBuilder();
-        builder.command("cmd.exe", "/c", "start", "/min", "STPCalculator.exe", "--input", desktopPath + "/UploadedStepFiles/" + fileName, "--output", desktopPath + "/STPCalculator");
+        builder.command("cmd.exe", "/c", "start", "/min", "STPCalculator.exe", "--input", desktopPath + "/UploadedStepFiles/" + fileName, "--output", desktopPath + "/STPCalculator/" + fileName + ".json");
         builder.directory(new File(desktopPath + "/STPCalculator/bin"));
         builder.redirectErrorStream(true);
         try {
             Process process = builder.start();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
-                }
-            }
             int processCompleted = process.waitFor();
             if (processCompleted == 0) {
                 Thread.sleep(1000);
                 ObjectMapper objectMapper = new ObjectMapper();
-                Path targetLocation = Paths.get(System.getProperty("user.home") + "/Desktop/STPCalculator/calculatedStep.json");
+                Path targetLocation = Paths.get(System.getProperty("user.home") + "/Desktop/STPCalculator/" + fileName + ".json");
                 File jsonFile = new File(targetLocation.toUri());
-                StepContentBean stepContent = objectMapper.readValue(jsonFile, StepContentBean.class);
-                return stepContent;
+                return objectMapper.readValue(jsonFile, StepContentBean.class);
             } else {
                 throw new ValidationException("Errore calcolo file STP");
             }

@@ -23,12 +23,13 @@ public class StepDetailMapper extends AbstractMapper<Step, StepBean> {
         stepMapper.mapEntityToBean(bean, entity);
 
         ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            bean.setStepContent(objectMapper.readValue(entity.getStepContent(), StepContentBean.class));
-        } catch (JsonProcessingException ex) {
-            System.out.println(ex.getMessage());
+        if(entity.getStepContent() != null) {
+            try {
+                bean.setStepContent(objectMapper.readValue(entity.getStepContent(), StepContentBean.class));
+            } catch (JsonProcessingException ex) {
+                System.out.println(ex.getMessage());
+            }
         }
         return bean;
     }
-
 }

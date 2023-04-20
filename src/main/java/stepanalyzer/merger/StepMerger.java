@@ -11,13 +11,15 @@ public class StepMerger extends AbstractMerger<StepBean, Step> {
 
     @Override
     protected void doMerge(StepBean bean, Step entity) {
-        entity.setTokenStep(bean.getTokenStep());
         entity.setFileName(bean.getFileName());
+        entity.setAction(bean.getAction());
         ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            entity.setStepContent(objectMapper.writeValueAsString(bean.getStepContent()));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+        if(bean.getStepContent() != null) {
+            try {
+                entity.setStepContent(objectMapper.writeValueAsString(bean.getStepContent()));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
