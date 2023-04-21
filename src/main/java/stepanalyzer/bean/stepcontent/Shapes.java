@@ -1,6 +1,7 @@
 package stepanalyzer.bean.stepcontent;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 public class Shapes implements Serializable {
@@ -10,6 +11,8 @@ public class Shapes implements Serializable {
     String shapeID;
     String shapeName;
     Integer stepID;
+
+    BigDecimal volume;
 
     public Appearance getAppearance() {
         return appearance;
@@ -57,5 +60,13 @@ public class Shapes implements Serializable {
 
     public void setStepID(Integer stepID) {
         this.stepID = stepID;
+    }
+
+    public BigDecimal getVolume() {
+        return volume;
+    }
+
+    public void setVolume(BigDecimal volume) {
+        this.volume = volume;
     }
 }

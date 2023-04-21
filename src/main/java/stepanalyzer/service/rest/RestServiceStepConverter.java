@@ -22,10 +22,6 @@ public interface RestServiceStepConverter {
     ResponseEntity<Resource> fromStpToStl(@RequestParam("file") MultipartFile formData)
             throws IOException, ExecutionException, InterruptedException, TimeoutException;
 
-    @PostMapping("/stpCalculator")
-    StepBean stpCalculator(@RequestParam("file") MultipartFile formData)
-            throws IOException, ExecutionException, InterruptedException, TimeoutException;
-
     @GetMapping("/testGet")
     String testGet();
 

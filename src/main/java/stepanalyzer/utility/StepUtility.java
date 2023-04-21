@@ -411,20 +411,20 @@ public class StepUtility {
     }
 
     public String getX3DContent(StepContentBean stepContent) {
-        StringBuilder X3DData = new StringBuilder();
         // Initial indent level
         int level = 0;
         // Open header
-        X3DData.append(openHeader());
 
-        // Write viewpoint
-        X3DData.append(writeViewpoint(stepContent, level + 1));
+        String X3DData = openHeader() +
 
-        // Write model
-        X3DData.append(writeModel(stepContent, level + 1));
+                // Write viewpoint
+                writeViewpoint(stepContent, level + 1) +
 
-        // Close header
-        X3DData.append(closeHeader());
+                // Write model
+                writeModel(stepContent, level + 1) +
+
+                // Close header
+                closeHeader();
         return String.valueOf(X3DData);
     }
 

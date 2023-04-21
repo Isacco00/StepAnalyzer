@@ -1,27 +1,35 @@
 package stepanalyzer.websocket;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
-import stepanalyzer.bean.StepBean;
+import stepanalyzer.bean.StepDetailBean;
+import stepanalyzer.bean.stepcontent.StepContentBean;
+import stepanalyzer.manager.StepManager;
 
-import java.io.Console;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import javax.inject.Inject;
+import java.io.IOException;
 
 @Controller
 public class WebSocketController {
+    @Inject
+    private StepManager stepManager;
 
     @MessageMapping("/processStepFile")
-    @SendTo("/websocketapi/processStepFile")
-    public List<StepBean> greet(StepBean stepBean) throws InterruptedException {
-        return Collections.singletonList(stepBean);
+    @SendTo("/websocketapi/getProcessedStepFile")
+    public WebSocketOutputBean processStepFile(WebSocketInputBean webSocketBean) throws IOException {
+        WebSocketOutputBean outputBean = new WebSocketOutputBean();
+        if (webSocketBean.getTokenStep() != null) {
+            StepDetailBean bean = stepManager.getStepDetail(webSocketBean.getTokenStep());
+            try {
+                StepContentBean stepContentBean = stepManager.calculateStepFile(bean.getFileName());
+                bean.setStepContent(stepContentBean);
+                bean.setAction("Completed");
+            } catch (Exception ex) {
+                bean.setAction("Error");
+            }
+            outputBean.setStepDetailBean(stepManager.saveStep(bean));
+        }
+        return outputBean;
     }
 }

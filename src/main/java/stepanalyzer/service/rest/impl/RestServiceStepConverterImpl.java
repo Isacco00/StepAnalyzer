@@ -45,7 +45,4 @@ import java.util.concurrent.TimeoutException;
         return stepConverterManager.fromStpToX3DCalculator(formData);
     }
 
-    @Override public StepBean stpCalculator(@RequestParam("file") MultipartFile file) throws IOException, ExecutionException, InterruptedException, TimeoutException {
-        return stepManager.stpCalculator(file);
-    }
 }
