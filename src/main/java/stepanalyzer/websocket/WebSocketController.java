@@ -28,7 +28,7 @@ public class WebSocketController {
             } catch (Exception ex) {
                 bean.setAction("Error");
             }
-            outputBean.setStepDetailBean(stepManager.saveStep(bean));
+            outputBean.setStepBean(stepManager.saveStep(bean));
         }
         return outputBean;
     }

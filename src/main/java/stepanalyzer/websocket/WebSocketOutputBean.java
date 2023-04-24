@@ -1,16 +1,17 @@
 package stepanalyzer.websocket;
 
+import stepanalyzer.bean.StepBean;
 import stepanalyzer.bean.StepDetailBean;
 
 public class WebSocketOutputBean {
 
-    StepDetailBean stepDetailBean;
+    StepBean stepBean;
 
-    public StepDetailBean getStepDetailBean() {
-        return stepDetailBean;
+    public StepBean getStepBean() {
+        return stepBean;
     }
 
-    public void setStepDetailBean(StepDetailBean stepDetailBean) {
-        this.stepDetailBean = stepDetailBean;
+    public void setStepBean(StepBean stepBean) {
+        this.stepBean = stepBean;
     }
 }

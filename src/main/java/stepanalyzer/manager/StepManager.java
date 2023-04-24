@@ -7,8 +7,6 @@ import stepanalyzer.bean.stepcontent.StepContentBean;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 public interface StepManager {
 
@@ -16,9 +14,11 @@ public interface StepManager {
 
     StepBean uploadStepFile(MultipartFile formData) throws IOException;
 
-    StepDetailBean saveStep(StepDetailBean stepDetailBean) throws IOException;
+    StepBean saveStep(StepDetailBean stepDetailBean) throws IOException;
 
     StepDetailBean getStepDetail(Long tokenStep) throws IOException;
 
     StepContentBean calculateStepFile(String fileName);
+
+    void deleteStepFile(Long tokenStep);
 }

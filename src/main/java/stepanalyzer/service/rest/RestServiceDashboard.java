@@ -17,9 +17,11 @@ public interface RestServiceDashboard {
 
     @GetMapping("/getStepBeanList")
     List<StepBean> getStepBeanList();
-    @GetMapping("/testGet")
-    String testGet();
 
     @PostMapping("/uploadStepFile")
     StepBean uploadStepFile(@RequestParam("file") MultipartFile formData) throws IOException;
+
+    @GetMapping("/deleteStepFile/{token}")
+    void deleteStepFile(@PathVariable("token") Long tokenStep) throws IOException;
+
 }

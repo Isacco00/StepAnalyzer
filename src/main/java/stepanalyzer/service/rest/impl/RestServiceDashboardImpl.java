@@ -19,11 +19,11 @@ import java.util.List;
         return stepManager.getStepBeanList();
     }
     @Override
-    public String testGet() {
-        return "Hello world";
-    }
-    @Override
     public StepBean uploadStepFile(MultipartFile formData) throws IOException {
         return stepManager.uploadStepFile(formData);
+    }
+    @Override
+    public void deleteStepFile(Long tokenStep) {
+        stepManager.deleteStepFile(tokenStep);
     }
 }
