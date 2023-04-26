@@ -437,42 +437,33 @@ public class StepUtility {
 
     private String writeModel(StepContentBean stepContent, int level) {
         StringBuilder model = new StringBuilder();
-        if (stepContent.getModel().getComponents().size() >= 2) {
-            throw new ValidationException("Errore calcolo file STP");
-        } else {
-            // Write root components
-            for (int i = 0; i < stepContent.getModel().getComponents().size(); ++i) {
-                Components rootComp = stepContent.getModel().getComponents().get(i);
-                model.append(indent(level + 1));
-                model.append("<Group");
-                model.append(" DEF='").append(rootComp.getComponentName()).append("'>\n");
-                level++;
-                model.append(writeComponent(rootComp, level + 1));
-                model.append(indent(level + 1));
-                model.append("</Group>\n");
-            }
-        }
+        Components rootComp = stepContent.getModel().getComponents().get(0);
+        model.append(indent(level + 1));
+        model.append("<Group");
+        model.append(" DEF='").append(rootComp.getComponentName()).append("'>\n");
+        level++;
+        model.append(writeComponent(rootComp, level + 1));
+        model.append(indent(level + 1));
+        model.append("</Group>\n");
         return String.valueOf(model);
     }
 
     private String writeComponent(Components rootComp, int level) {
         StringBuilder component = new StringBuilder();
         // Write shape nodes
-        for (int i = 0; i < rootComp.getShapes().size(); ++i) {
-            Shapes iShape = rootComp.getShapes().get(i);
-            component.append(writeShape(iShape, level + 1, i));
-        }
+        Shapes iShape = rootComp.getShapes().get(0);
+        component.append(writeShape(iShape, level + 1));
         return String.valueOf(component);
     }
 
-    private String writeShape(Shapes iShape, int level, int index) {
+    private String writeShape(Shapes iShape, int level) {
         StringBuilder shapes = new StringBuilder();
         shapes.append(indent(level));
         shapes.append("<Shape");
         shapes.append(" id='").append(iShape.getShapeID()).append("'");
         shapes.append("DEF='").append(iShape.getShapeName()).append("'");
         shapes.append(">\n");
-        shapes.append(writeIndexedFaceSet(iShape, level + 1, index));
+        shapes.append(writeIndexedFaceSet(iShape, level + 1, 0));
         shapes.append(indent(level));
         shapes.append("</Shape>\n");
         shapes.append(indent(level));
@@ -480,15 +471,15 @@ public class StepUtility {
         shapes.append(" id='").append(iShape.getShapeID()).append("'");
         shapes.append("DEF='").append(iShape.getShapeName() + "_edges").append("'");
         shapes.append(">\n");
-        shapes.append(writeIndexedLineSet(iShape, level + 1, index + 1));
+        shapes.append(writeIndexedLineSet(iShape, level + 1));
         shapes.append(indent(level));
         shapes.append("</Shape>\n");
         return String.valueOf(shapes);
     }
 
-    private String writeIndexedLineSet(Shapes iShape, int level, int index) {
+    private String writeIndexedLineSet(Shapes iShape, int level) {
         StringBuilder edges = new StringBuilder();
-        edges.append(writeAppearance(iShape, index));
+        edges.append(writeAppearance(iShape, 1));
         // Open IndexedFaceSet
         edges.append(indent(level));
         edges.append("<IndexedLineSet");

@@ -3,13 +3,14 @@ package stepanalyzer.mapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
-import stepanalyzer.bean.StepBean;
 import stepanalyzer.bean.StepDetailBean;
-import stepanalyzer.bean.stepcontent.StepContentBean;
+import stepanalyzer.bean.stepcontent.*;
 import stepanalyzer.entity.Step;
 import stepanalyzer.utility.StepUtility;
 
 import javax.inject.Inject;
+import java.util.Comparator;
+import java.util.List;
 
 @Component
 public class StepDetailMapper extends AbstractMapper<Step, StepDetailBean> {
@@ -31,10 +32,19 @@ public class StepDetailMapper extends AbstractMapper<Step, StepDetailBean> {
             try {
                 bean.setStepContent(objectMapper.readValue(entity.getStepContent(), StepContentBean.class));
                 bean.setX3DContent(stepUtility.getX3DContent(bean.getStepContent()));
+                setPerimeterAndVolume(bean, bean.getStepContent().getModel());
             } catch (JsonProcessingException ex) {
                 System.out.println(ex.getMessage());
             }
         }
         return bean;
+    }
+
+    private void setPerimeterAndVolume(StepDetailBean bean, Model model) {
+        Shapes shape = model.getComponents().get(0).getShapes().get(0);
+        Comparator<Mesh> byCoordinates = Comparator.comparingInt(e -> e.getCoordinates().size());
+        List<Mesh> ordered = shape.getMesh().stream().sorted(byCoordinates.reversed()).toList();
+        bean.setPerimetro(ordered.get(0).getEdgePerimeter());
+        bean.setVolume(shape.getVolume());
     }
 }
