@@ -14,7 +14,7 @@ import java.util.concurrent.TimeoutException;
 @RestController
 @RequestMapping(RestServicePath.DASHBOARD)
 public interface RestServiceDashboard {
-
+    @CrossOrigin(origins = "*") // Replace "*" with your specific domain(s) in production
     @GetMapping("/getStepBeanList")
     List<StepBean> getStepBeanList();
 

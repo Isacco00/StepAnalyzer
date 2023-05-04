@@ -12,8 +12,8 @@ import stepanalyzer.manager.StepConverterManager;
 import stepanalyzer.utility.StepUtility;
 import stepanalyzer.utility.StreamGobbler;
 
-import javax.inject.Inject;
-import javax.transaction.Transactional;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -24,11 +24,14 @@ import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 
-@Service @Transactional public class StepConverterManagerImpl implements StepConverterManager {
+@Service @Transactional
+public class StepConverterManagerImpl implements StepConverterManager {
 
-    @Inject StepUtility stepUtility;
+    @Inject
+    StepUtility stepUtility;
 
-    @Override public DocumentBean fromStpToStl(MultipartFile formData) throws IOException, InterruptedException {
+    @Override
+    public DocumentBean fromStpToStl(MultipartFile formData) throws IOException, InterruptedException {
         String fileName = storeFile(formData);
         ProcessBuilder builder = new ProcessBuilder();
         builder.command("python", "convertToStl.py");
@@ -50,7 +53,8 @@ import java.util.concurrent.Executors;
         }
     }
 
-    @Override public String fromStpToX3D(MultipartFile formData) throws IOException, InterruptedException {
+    @Override
+    public String fromStpToX3D(MultipartFile formData) throws IOException, InterruptedException {
         String fileName = storeFile(formData);
         ProcessBuilder builder = new ProcessBuilder();
         builder.command("python", "convertToX3D.py");
@@ -64,10 +68,10 @@ import java.util.concurrent.Executors;
             Resource resource = loadFileAsResource(x3dFileName);
             String s = new String(Files.readAllBytes(resource.getFile().toPath()));
             return s.substring(s.indexOf("<X3D"), s.indexOf("</X3D>") + 6).replace(
-                    "<X3D profile=\"Immersive\" version=\"3.2\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema-instance\" xsd:noNamespaceSchemaLocation=\"http://www.web3d.org/specifications/x3d-3.2.xsd\" width=\"1280px\"  height=\"1024px\">",
-                    "<X3D profile=\"Immersive\" version=\"3.2\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema-instance\" xsd:noNamespaceSchemaLocation=\"http://www.web3d.org/specifications/x3d-3.2.xsd\">")
-                .replace("<Background groundColor=\"0.7 0.7 0.7\" skyColor=\"0.7 0.7 0.7\" />",
-                    "<Background groundColor=\"1.0 1.0 1.0\" skyColor=\"1.0 1.0 1.0\" />");
+                            "<X3D profile=\"Immersive\" version=\"3.2\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema-instance\" xsd:noNamespaceSchemaLocation=\"http://www.web3d.org/specifications/x3d-3.2.xsd\" width=\"1280px\"  height=\"1024px\">",
+                            "<X3D profile=\"Immersive\" version=\"3.2\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema-instance\" xsd:noNamespaceSchemaLocation=\"http://www.web3d.org/specifications/x3d-3.2.xsd\">")
+                    .replace("<Background groundColor=\"0.7 0.7 0.7\" skyColor=\"0.7 0.7 0.7\" />",
+                            "<Background groundColor=\"1.0 1.0 1.0\" skyColor=\"1.0 1.0 1.0\" />");
         } else {
             throw new ValidationException("Errore lettura file STP");
         }
@@ -102,7 +106,9 @@ import java.util.concurrent.Executors;
             throw new EntityNotFoundException("File not found " + fileName, ex);
         }
     }
-    @Override public String fromStpToX3DCalculator(MultipartFile formData) throws IOException {
+
+    @Override
+    public String fromStpToX3DCalculator(MultipartFile formData) throws IOException {
         return stepUtility.processStepFile(formData.getInputStream());
     }
 }

@@ -8,7 +8,7 @@ import stepanalyzer.bean.stepcontent.*;
 import stepanalyzer.entity.Step;
 import stepanalyzer.utility.StepUtility;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.Comparator;
 import java.util.List;
 

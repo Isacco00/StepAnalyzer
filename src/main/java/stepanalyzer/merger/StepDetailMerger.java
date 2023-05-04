@@ -7,7 +7,7 @@ import stepanalyzer.bean.StepBean;
 import stepanalyzer.bean.StepDetailBean;
 import stepanalyzer.entity.Step;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Component
 public class StepDetailMerger extends AbstractMerger<StepDetailBean, Step> {

@@ -5,7 +5,7 @@ import stepanalyzer.bean.StepBean;
 import stepanalyzer.manager.StepManager;
 import stepanalyzer.service.rest.RestServiceStepViewer;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.io.IOException;
 
 @Component

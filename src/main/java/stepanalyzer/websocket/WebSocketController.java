@@ -7,7 +7,7 @@ import stepanalyzer.bean.StepDetailBean;
 import stepanalyzer.bean.stepcontent.StepContentBean;
 import stepanalyzer.manager.StepManager;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.io.IOException;
 
 @Controller

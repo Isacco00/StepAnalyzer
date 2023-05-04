@@ -17,9 +17,10 @@ import stepanalyzer.request.bean.StepRequestBean;
 import stepanalyzer.utility.CollectionUtils;
 import stepanalyzer.utility.FileUtility;
 
-import javax.inject.Inject;
-import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;

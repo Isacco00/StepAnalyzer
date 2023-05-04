@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import stepanalyzer.bean.stepcontent.*;
 import stepanalyzer.exception.ValidationException;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
