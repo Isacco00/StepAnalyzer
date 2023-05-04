@@ -2,14 +2,13 @@ package stepanalyzer.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import stepanalyzer.bean.stepcontent.StepContentBean;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 
 @JsonInclude(value = Include.NON_NULL)
 public class StepDetailBean extends StepBean implements Serializable {
-    private StepContentBean stepContent;
+    private StepJsonBean stepJson;
     private String X3DContent;
     private BigDecimal lunghezzaX;
     private BigDecimal larghezzaY;
@@ -17,12 +16,12 @@ public class StepDetailBean extends StepBean implements Serializable {
     private BigDecimal volume;
     private BigDecimal perimetro;
 
-    public StepContentBean getStepContent() {
-        return stepContent;
+    public StepJsonBean getStepJson() {
+        return stepJson;
     }
 
-    public void setStepContent(StepContentBean stepContent) {
-        this.stepContent = stepContent;
+    public void setStepJson(StepJsonBean stepJson) {
+        this.stepJson = stepJson;
     }
 
     public String getX3DContent() {

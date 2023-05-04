@@ -17,8 +17,10 @@ public class Step {
     @Column(name = "action")
     private String action;
 
-    @Column(name = "step_content", columnDefinition = "jsonb")
-    private String stepContent;
+    //bi-directional many-to-one association to GeoRegion
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "token_step_json")
+    private StepJson stepJson;
 
     public Long getTokenStep() {
         return tokenStep;
@@ -36,14 +38,6 @@ public class Step {
         this.fileName = fileName;
     }
 
-    public String getStepContent() {
-        return stepContent;
-    }
-
-    public void setStepContent(String stepContent) {
-        this.stepContent = stepContent;
-    }
-
     public String getAction() {
         return action;
     }
@@ -52,4 +46,11 @@ public class Step {
         this.action = action;
     }
 
+    public StepJson getStepJson() {
+        return stepJson;
+    }
+
+    public void setStepJson(StepJson stepJson) {
+        this.stepJson = stepJson;
+    }
 }

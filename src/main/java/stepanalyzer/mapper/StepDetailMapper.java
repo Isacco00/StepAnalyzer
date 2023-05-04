@@ -1,9 +1,8 @@
 package stepanalyzer.mapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 import stepanalyzer.bean.StepDetailBean;
+import stepanalyzer.bean.StepJsonBean;
 import stepanalyzer.bean.stepcontent.*;
 import stepanalyzer.entity.Step;
 import stepanalyzer.utility.StepUtility;
@@ -18,6 +17,8 @@ public class StepDetailMapper extends AbstractMapper<Step, StepDetailBean> {
     @Inject
     private StepMapper stepMapper;
     @Inject
+    private StepJsonMapper stepJsonMapper;
+    @Inject
     private StepUtility stepUtility;
 
     protected StepDetailBean doMapping(Step entity) {
@@ -27,16 +28,11 @@ public class StepDetailMapper extends AbstractMapper<Step, StepDetailBean> {
     protected StepDetailBean doMapping(StepDetailBean bean, Step entity) {
         stepMapper.mapEntityToBean(bean, entity);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        if (entity.getStepContent() != null) {
-            try {
-                bean.setStepContent(objectMapper.readValue(entity.getStepContent(), StepContentBean.class));
-                bean.setX3DContent(stepUtility.getX3DContent(bean.getStepContent()));
-                setPerimeterAndVolume(bean, bean.getStepContent().getModel());
-            } catch (JsonProcessingException ex) {
-                System.out.println(ex.getMessage());
-            }
+        if (entity.getStepJson() != null) {
+            StepJsonBean stepJsonBean = stepJsonMapper.mapEntityToBean(entity.getStepJson());
+            bean.setStepJson(stepJsonBean);
         }
+
         return bean;
     }
 

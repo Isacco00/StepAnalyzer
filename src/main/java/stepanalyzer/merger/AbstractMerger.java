@@ -1,9 +1,13 @@
 package stepanalyzer.merger;
 
+import jakarta.inject.Inject;
+import stepanalyzer.repository.GenericRepository;
+
 import java.lang.reflect.InvocationTargetException;
 
 public abstract class AbstractMerger<K, V> /* implements BeanEntityMerger<K, V> */ {
-
+	@Inject
+	protected GenericRepository repo;
 	public V mapNew(K bean, Class<V> clazz) {
 		try {
 			V v = clazz.getDeclaredConstructor().newInstance();
