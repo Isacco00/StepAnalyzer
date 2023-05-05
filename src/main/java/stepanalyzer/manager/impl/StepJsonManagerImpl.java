@@ -1,44 +1,34 @@
 package stepanalyzer.manager.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import stepanalyzer.bean.StepDetailBean;
-import stepanalyzer.bean.StepJsonBean;
-import stepanalyzer.bean.stepcontent.StepContentBean;
-import stepanalyzer.entity.Step;
-import stepanalyzer.entity.StepJson;
-import stepanalyzer.exception.ValidationException;
-import stepanalyzer.manager.StepJsonManager;
-import stepanalyzer.mapper.StepJsonMapper;
-import stepanalyzer.merger.StepJsonMerger;
+import stepanalyzer.bean.StepContentBean;
+import stepanalyzer.entity.StepContent;
+import stepanalyzer.manager.StepContentManager;
+import stepanalyzer.mapper.StepContentMapper;
+import stepanalyzer.merger.StepContentMerger;
 import stepanalyzer.repository.StepRepository;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Service
 @Transactional
-public class StepJsonManagerImpl implements StepJsonManager {
+public class StepJsonManagerImpl implements StepContentManager {
 
     @Inject
     StepRepository repo;
     @Inject
-    StepJsonMapper mapper;
+    StepContentMapper mapper;
     @Inject
-    StepJsonMerger merger;
+    StepContentMerger merger;
 
     @Override
-    public StepJsonBean saveStepJson(StepJsonBean bean) {
-        StepJson entity;
-        if (bean.getTokenStepJson() == 0) {
-            entity = merger.mapNew(bean, StepJson.class);
+    public StepContentBean saveStepContent(StepContentBean bean) {
+        StepContent entity;
+        if (bean.getTokenStepContent() == 0) {
+            entity = merger.mapNew(bean, StepContent.class);
         } else {
-            entity = repo.find(StepJson.class, bean.getTokenStepJson());
+            entity = repo.find(StepContent.class, bean.getTokenStepContent());
             if (entity == null) {
                 throw new EntityNotFoundException();
             }

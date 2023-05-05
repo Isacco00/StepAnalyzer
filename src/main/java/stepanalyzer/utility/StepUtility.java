@@ -410,7 +410,7 @@ public class StepUtility {
         return Math.sqrt(v);
     }
 
-    public String getX3DContent(StepContentBean stepContent) {
+    public String getX3DContent(StepJsonBean stepContent) {
         // Initial indent level
         int level = 0;
         // Open header
@@ -435,7 +435,7 @@ public class StepUtility {
         return String.valueOf(header);
     }
 
-    private String writeModel(StepContentBean stepContent, int level) {
+    private String writeModel(StepJsonBean stepContent, int level) {
         StringBuilder model = new StringBuilder();
         Components rootComp = stepContent.getModel().getComponents().get(0);
         model.append(indent(level + 1));
@@ -588,7 +588,7 @@ public class StepUtility {
         return String.valueOf(appearanceBuilder);
     }
 
-    private String writeViewpoint(StepContentBean stepContent, int level) {
+    private String writeViewpoint(StepJsonBean stepContent, int level) {
         StringBuilder viewPoint = new StringBuilder();
         BoundingBox boundingBox = stepContent.getModel().getBoundingBox();
         BigDecimal xMin = boundingBox.getxMin();

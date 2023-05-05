@@ -1,13 +1,19 @@
 package stepanalyzer.manager.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import stepanalyzer.bean.StepBean;
+import stepanalyzer.bean.StepContentBean;
 import stepanalyzer.bean.StepDetailBean;
-import stepanalyzer.bean.stepcontent.StepContentBean;
+import stepanalyzer.bean.stepcontent.Mesh;
+import stepanalyzer.bean.stepcontent.Model;
+import stepanalyzer.bean.stepcontent.Shapes;
+import stepanalyzer.bean.stepcontent.StepJsonBean;
 import stepanalyzer.entity.Step;
 import stepanalyzer.exception.ValidationException;
+import stepanalyzer.manager.StepContentManager;
 import stepanalyzer.manager.StepManager;
 import stepanalyzer.mapper.StepDetailMapper;
 import stepanalyzer.mapper.StepMapper;
@@ -25,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -41,6 +48,8 @@ public class StepManagerImpl implements StepManager {
     StepMapper stepMapper;
     @Inject
     StepDetailMerger stepMerger;
+    @Inject
+    private StepContentManager stepContentManager;
 
     @Override
     public List<StepBean> getStepBeanList() {
@@ -90,7 +99,7 @@ public class StepManagerImpl implements StepManager {
     }
 
     @Override
-    public StepContentBean calculateStepFile(String fileName) {
+    public StepJsonBean calculateStepFile(String fileName) {
         String desktopPath = System.getProperty("user.home") + "/Desktop";
         ProcessBuilder builder = new ProcessBuilder();
         builder.command(desktopPath + "/STPCalculator/bin/STPCalculator.exe", "--input", desktopPath + "/UploadedStepFiles/" + fileName, "--output", desktopPath + "/STPCalculator/" + fileName + ".json");
@@ -104,7 +113,7 @@ public class StepManagerImpl implements StepManager {
                 ObjectMapper objectMapper = new ObjectMapper();
                 Path targetLocation = Paths.get(System.getProperty("user.home") + "/Desktop/STPCalculator/" + fileName + ".json");
                 File jsonFile = new File(targetLocation.toUri());
-                return objectMapper.readValue(jsonFile, StepContentBean.class);
+                return objectMapper.readValue(jsonFile, StepJsonBean.class);
             } else {
                 throw new ValidationException("Errore calcolo file STP");
             }
@@ -121,5 +130,32 @@ public class StepManagerImpl implements StepManager {
         } else {
             throw new EntityNotFoundException("Step file not found");
         }
+    }
+
+    @Override
+    public StepBean processStepFile(@NotNull Long tokenStep) {
+        StepDetailBean bean = this.getStepDetail(tokenStep);
+        try {
+            StepJsonBean stepJsonBean = this.calculateStepFile(bean.getFileName());
+            StepContentBean content = bean.getStepContent();
+            if (content == null) {
+                content = new StepContentBean();
+                content.setTokenStepContent(0L);
+            }
+            content.setStepJsonBean(stepJsonBean);
+            bean.setStepContent(stepContentManager.saveStepContent(content));
+            bean.setAction("Completed");
+        } catch (Exception ex) {
+            bean.setAction("Error");
+        }
+        return this.saveStep(bean);
+    }
+
+    private void setPerimeterAndVolume(StepDetailBean bean, Model model) {
+        Shapes shape = model.getComponents().get(0).getShapes().get(0);
+        Comparator<Mesh> byCoordinates = Comparator.comparingInt(e -> e.getCoordinates().size());
+        List<Mesh> ordered = shape.getMesh().stream().sorted(byCoordinates.reversed()).toList();
+        //bean.setPerimetro(ordered.get(0).getEdgePerimeter());
+        //bean.setVolume(shape.getVolume());
     }
 }

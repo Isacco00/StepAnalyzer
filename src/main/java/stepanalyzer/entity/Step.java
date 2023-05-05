@@ -18,9 +18,9 @@ public class Step {
     private String action;
 
     //bi-directional many-to-one association to GeoRegion
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "token_step_json")
-    private StepJson stepJson;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "token_step_content")
+    private StepContent stepContent;
 
     public Long getTokenStep() {
         return tokenStep;
@@ -46,11 +46,11 @@ public class Step {
         this.action = action;
     }
 
-    public StepJson getStepJson() {
-        return stepJson;
+    public StepContent getStepContent() {
+        return stepContent;
     }
 
-    public void setStepJson(StepJson stepJson) {
-        this.stepJson = stepJson;
+    public void setStepContent(StepContent stepContent) {
+        this.stepContent = stepContent;
     }
 }

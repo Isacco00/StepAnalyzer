@@ -2,10 +2,8 @@ package stepanalyzer.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import stepanalyzer.bean.stepcontent.StepContentBean;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 @JsonInclude(value = Include.NON_NULL)
 public class StepBean implements Serializable {

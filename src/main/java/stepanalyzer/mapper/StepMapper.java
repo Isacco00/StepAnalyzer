@@ -1,10 +1,7 @@
 package stepanalyzer.mapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 import stepanalyzer.bean.StepBean;
-import stepanalyzer.bean.stepcontent.StepContentBean;
 import stepanalyzer.entity.Step;
 
 @Component public class StepMapper extends AbstractMapper<Step, StepBean> {
