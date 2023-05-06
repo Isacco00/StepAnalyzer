@@ -2,6 +2,7 @@ package stepanalyzer.entity;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,7 +18,10 @@ public class StepContent {
 
     @Column(name = "json", columnDefinition = "jsonb")
     private String json;
-
+    @Column(name = "perimetro")
+    private BigDecimal perimetro;
+    @Column(name = "volume")
+    private BigDecimal volume;
     @OneToOne(mappedBy = "stepContent")
     private Step step;
 
@@ -43,5 +47,21 @@ public class StepContent {
 
     public void setStep(Step step) {
         this.step = step;
+    }
+
+    public BigDecimal getPerimetro() {
+        return perimetro;
+    }
+
+    public void setPerimetro(BigDecimal perimetro) {
+        this.perimetro = perimetro;
+    }
+
+    public BigDecimal getVolume() {
+        return volume;
+    }
+
+    public void setVolume(BigDecimal volume) {
+        this.volume = volume;
     }
 }

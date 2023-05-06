@@ -4,6 +4,8 @@ package stepanalyzer.utility;//
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+import stepanalyzer.bean.StepBean;
+import stepanalyzer.bean.StepDetailBean;
 import stepanalyzer.exception.FileStorageException;
 
 import java.io.*;
@@ -16,35 +18,61 @@ import java.util.Objects;
 
 @Component
 public class FileUtility {
-    public String storeFile(MultipartFile formData) throws IOException {
-        File directory = new File(Paths.get(System.getProperty("user.home") + "/Desktop/UploadedStepFiles/").toUri());
-        if (!directory.exists()) {
-            Files.createDirectories(Paths.get(System.getProperty("user.home") + "/Desktop/UploadedStepFiles/"));
+
+    public static String PRINCIPAL_DIR = System.getProperty("user.home") + "/Desktop/UploadedStepFiles/";
+    public static String getStepJsonPathName(StepBean bean) {
+        String fileName = bean.getFileName();
+        String name = "";
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            name = fileName.substring(0, i);
         }
-        String fileName = new File(Objects.requireNonNull(formData.getOriginalFilename())).getName();
-        String extension = "";
+        return PRINCIPAL_DIR + name + "/" + name + ".json";
+    }
+    public static String getStepFilePathName(StepBean bean) {
+        String fileName = bean.getFileName();
+        String extension = "", name = "";
         int i = fileName.lastIndexOf('.');
         if (i > 0) {
             extension = fileName.substring(i + 1);
+            name = fileName.substring(0, i);
+        }
+        String versionedFileName = name + "_" + bean.getVersion() + "." + extension;
+        return PRINCIPAL_DIR + name + "/step/" + versionedFileName;
+    }
+
+    public static String getStepPathName(StepBean bean) {
+        String fileName = bean.getFileName();
+        String extension = "", name = "";
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            extension = fileName.substring(i + 1);
+            name = fileName.substring(0, i);
         }
         if (!Arrays.asList("stp", "step").contains(extension) || fileName.contains("..")) {
             throw new FileStorageException("Errore! Nome file o estensione errati");
         }
+        return PRINCIPAL_DIR + name + "/step";
+    }
+
+    public void storeFile(MultipartFile formData, StepDetailBean bean) throws IOException {
+        File directory = new File(Paths.get(getStepPathName(bean)).toUri());
+        if (!directory.exists()) {
+            Files.createDirectories(Paths.get(getStepPathName(bean)));
+        }
         try {
             // Copy file to the target location (Replacing existing file with the same name)
-            Path targetLocation = Paths.get(System.getProperty("user.home") + "/Desktop/UploadedStepFiles/" + fileName);
+            Path targetLocation = Paths.get(getStepFilePathName(bean));
             Files.copy(formData.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            return targetLocation.toFile().getName();
         } catch (IOException ex) {
-            throw new FileStorageException("Impossibile salvare il file " + fileName, ex);
+            throw new FileStorageException("Impossibile salvare il file " + bean.getFileName(), ex);
         }
     }
 
     public byte[] getFile(String fileName) {
         try {
             Path targetLocation = Paths.get(System.getProperty("user.home") + "/Desktop/UploadedStepFiles/" + fileName);
-            byte[] data = Files.readAllBytes(targetLocation);
-            return data;
+            return Files.readAllBytes(targetLocation);
         } catch (FileNotFoundException e) {
             System.out.println("Errore interno");
             e.printStackTrace();

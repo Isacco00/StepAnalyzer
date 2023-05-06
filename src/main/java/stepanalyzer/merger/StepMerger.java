@@ -13,6 +13,8 @@ public class StepMerger extends AbstractMerger<StepBean, Step> {
     protected void doMerge(StepBean bean, Step entity) {
         entity.setFileName(bean.getFileName());
         entity.setAction(bean.getAction());
+        entity.setVersion(bean.getVersion());
+        entity.setUpdateTimestamp(bean.getUpdateTimestamp());
     }
 
 }

@@ -2,6 +2,8 @@ package stepanalyzer.entity;
 
 import jakarta.persistence.*;
 
+import java.time.OffsetDateTime;
+
 @Entity
 @Table(name = "step")
 @NamedQuery(name = "Step.findAll", query = "SELECT s FROM Step s")
@@ -16,8 +18,11 @@ public class Step {
     private String fileName;
     @Column(name = "action")
     private String action;
-
-    //bi-directional many-to-one association to GeoRegion
+    @Column(name = "version")
+    private long version;
+    @Column(name = "update_timestamp")
+    private OffsetDateTime updateTimestamp;
+    //bi-directional many-to-one association to StepContent
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "token_step_content")
     private StepContent stepContent;
@@ -46,11 +51,27 @@ public class Step {
         this.action = action;
     }
 
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
     public StepContent getStepContent() {
         return stepContent;
     }
 
     public void setStepContent(StepContent stepContent) {
         this.stepContent = stepContent;
+    }
+
+    public OffsetDateTime getUpdateTimestamp() {
+        return updateTimestamp;
+    }
+
+    public void setUpdateTimestamp(OffsetDateTime updateTimestamp) {
+        this.updateTimestamp = updateTimestamp;
     }
 }

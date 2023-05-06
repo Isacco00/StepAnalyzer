@@ -3,6 +3,7 @@ package stepanalyzer.utility;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,7 +18,7 @@ public class NumberUtils {
 		return value != null ? value : BigDecimal.ZERO;
 	}
 
-	private static final boolean isZero(BigDecimal value) {
+	private static boolean isZero(BigDecimal value) {
 		return value.compareTo(BigDecimal.ZERO) == 0;
 	}
 
@@ -70,7 +71,7 @@ public class NumberUtils {
 	}
 
 	public static BigDecimal max(Stream<BigDecimal> values) {
-		List<BigDecimal> list = values.filter(x -> x != null).collect(Collectors.toList());
+		List<BigDecimal> list = values.filter(Objects::nonNull).toList();
 		return list.isEmpty() ? BigDecimal.ZERO : list.stream().max(BigDecimal::compareTo).get();
 	}
 

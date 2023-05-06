@@ -48,21 +48,17 @@ public class DateUtility {
 
 		String formattedDay = addZeroPrefixIfNeeded(date.getDayOfMonth());
 		String formattedMonth = addZeroPrefixIfNeeded(date.getMonthValue());
-		String formattedYear = date.getYear() + "";
+		String formattedYear = String.valueOf(date.getYear());
 
-		StringBuilder result = new StringBuilder();
-		result.append(formattedDay);
-		result.append(delimiter);
-		result.append(formattedMonth);
-		result.append(delimiter);
-		result.append(formattedYear);
-
-		return result.toString();
+		return formattedDay +
+				delimiter +
+				formattedMonth +
+				delimiter +
+				formattedYear;
 	}
 
 	public String formatDate(LocalDate date, DateFormatEnum pattern) {
-		String resultDate = date.format(DateTimeFormatter.ofPattern(pattern.getValue()));
-		return resultDate;
+		return date.format(DateTimeFormatter.ofPattern(pattern.getValue()));
 	}
 
 	private String addZeroPrefixIfNeeded(int value) {
@@ -135,8 +131,7 @@ public class DateUtility {
 	}
 
 	public LocalDate plusOneYearLeapSafe(LocalDate date) {
-		LocalDate newDate = date.plusDays(1).plusYears(1).minusDays(1);
-		return newDate;
+		return date.plusDays(1).plusYears(1).minusDays(1);
 	}
 
 	public String convertDateFormat(String date, DateFormatEnum from, DateFormatEnum to) {

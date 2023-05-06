@@ -5,7 +5,7 @@ import stepanalyzer.repository.GenericRepository;
 
 import java.lang.reflect.InvocationTargetException;
 
-public abstract class AbstractMerger<K, V> /* implements BeanEntityMerger<K, V> */ {
+public abstract class AbstractMerger<K, V> {
 	@Inject
 	protected GenericRepository repo;
 	public V mapNew(K bean, Class<V> clazz) {
@@ -26,10 +26,6 @@ public abstract class AbstractMerger<K, V> /* implements BeanEntityMerger<K, V> 
 	}
 
 	protected abstract void doMerge(K bean, V entity);
-
-	protected <E extends Enum<E>> String getOrNull(E val) {
-		return val != null ? val.name() : null;
-	}
 
 	private <T> void failOnNull(T object, String message) {
 		if (object == null) {

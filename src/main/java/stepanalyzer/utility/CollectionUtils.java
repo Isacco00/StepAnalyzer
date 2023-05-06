@@ -50,7 +50,7 @@ public class CollectionUtils {
 
 	public static <T> boolean containsDuplicates(List<T> elements) {
 		List<T> list = nullToEmpty(elements);
-		Set<T> set = list.stream().collect(Collectors.toSet());
+		Set<T> set = new HashSet<>(list);
 		return list.size() > set.size();
 	}
 
@@ -63,8 +63,8 @@ public class CollectionUtils {
 	}
 
 	public static <K, T> Map<K, T> forceOneElementPerKey(Map<K, List<T>> map) {
-		Map<K, T> result = new HashMap<K, T>();
-		map.entrySet().stream().forEach(x -> result.put(x.getKey(), getSingleElement(x.getValue())));
+		Map<K, T> result = new HashMap<>();
+		map.forEach((key, value) -> result.put(key, getSingleElement(value)));
 		return result;
 	}
 }

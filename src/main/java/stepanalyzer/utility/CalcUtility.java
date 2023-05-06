@@ -62,8 +62,7 @@ public class CalcUtility {
 
     public <T> BigDecimal averageIntegerValue(List<T> list, Function<T, Integer> getter) {
         Integer sum = this.sumIntegerValues(list, getter);
-        BigDecimal avg = this.divide(new BigDecimal(sum), new BigDecimal(list.size()));
-        return avg;
+        return this.divide(new BigDecimal(sum), new BigDecimal(list.size()));
     }
 
     public <T> BigDecimal sumBigDecimalValuesNullableIfAllNull(BigDecimal... values) {

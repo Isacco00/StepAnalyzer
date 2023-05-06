@@ -19,7 +19,7 @@ public interface StepManager {
 
     StepDetailBean getStepDetail(Long tokenStep) throws IOException;
 
-    StepJsonBean calculateStepFile(String fileName);
+    StepJsonBean calculateStepFile(StepDetailBean fileName);
 
     void deleteStepFile(Long tokenStep);
 

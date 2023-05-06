@@ -4,7 +4,8 @@ import org.springframework.stereotype.Component;
 import stepanalyzer.bean.StepBean;
 import stepanalyzer.entity.Step;
 
-@Component public class StepMapper extends AbstractMapper<Step, StepBean> {
+@Component
+public class StepMapper extends AbstractMapper<Step, StepBean> {
 
     protected StepBean doMapping(Step entity) {
         return doMapping(new StepBean(), entity);
@@ -14,6 +15,8 @@ import stepanalyzer.entity.Step;
         bean.setTokenStep(entity.getTokenStep());
         bean.setFileName(entity.getFileName());
         bean.setAction(entity.getAction());
+        bean.setVersion(entity.getVersion());
+        bean.setUpdateTimestamp(entity.getUpdateTimestamp());
         return bean;
     }
 

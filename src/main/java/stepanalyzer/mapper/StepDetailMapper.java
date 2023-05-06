@@ -1,6 +1,7 @@
 package stepanalyzer.mapper;
 
 import org.springframework.stereotype.Component;
+import stepanalyzer.bean.StepContentBean;
 import stepanalyzer.bean.StepDetailBean;
 import stepanalyzer.bean.StepContentBean;
 import stepanalyzer.bean.stepcontent.*;

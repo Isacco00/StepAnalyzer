@@ -26,10 +26,6 @@ public abstract class AbstractMapper<K, V> {
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
 
-	protected <E extends Enum<E>> E getOrNull(Class<E> enumClazz, String val) {
-		return val != null ? Enum.valueOf(enumClazz, val) : null;
-	}
-
 	private void failOnNull(K entity) {
 		if (entity == null) {
 			throw new IllegalArgumentException("entity is null");

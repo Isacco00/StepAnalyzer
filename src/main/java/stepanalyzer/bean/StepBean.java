@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 
 @JsonInclude(value = Include.NON_NULL)
 public class StepBean implements Serializable {
@@ -11,6 +12,8 @@ public class StepBean implements Serializable {
     private String fileName;
     private String createdBy;
     private String action;
+    private long version;
+    private OffsetDateTime updateTimestamp;
 
     public Long getTokenStep() {
         return tokenStep;
@@ -42,5 +45,21 @@ public class StepBean implements Serializable {
 
     public void setAction(String action) {
         this.action = action;
+    }
+
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
+    public OffsetDateTime getUpdateTimestamp() {
+        return updateTimestamp;
+    }
+
+    public void setUpdateTimestamp(OffsetDateTime updateTimestamp) {
+        this.updateTimestamp = updateTimestamp;
     }
 }
