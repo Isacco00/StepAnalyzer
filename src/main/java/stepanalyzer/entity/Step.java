@@ -26,6 +26,18 @@ public class Step {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "token_step_content")
     private StepContent stepContent;
+    //bi-directional many-to-one association to Materiale
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "token_material")
+    private Material material;
+
+    public Material getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(Material material) {
+        this.material = material;
+    }
 
     public Long getTokenStep() {
         return tokenStep;

@@ -32,6 +32,11 @@ public class StepContentMapper extends AbstractMapper<StepContent, StepContentBe
                 System.out.println(ex.getMessage());
             }
         }
+        bean.setLunghezzaX(entity.getLunghezzaX());
+        bean.setLarghezzaY(entity.getLarghezzaY());
+        bean.setSpessoreZ(entity.getSpessoreZ());
+        bean.setPesoPezzo(entity.getPesoPezzo());
+        bean.setCostoPezzoMateriale(entity.getCostoPezzoMateriale());
         return bean;
     }
 }

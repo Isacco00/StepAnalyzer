@@ -24,6 +24,16 @@ public class StepContent {
     private BigDecimal volume;
     @OneToOne(mappedBy = "stepContent")
     private Step step;
+    @Column(name = "lunghezza_x")
+    private BigDecimal lunghezzaX;
+    @Column(name = "larghezza_y")
+    private BigDecimal larghezzaY;
+    @Column(name = "spessore_z")
+    private BigDecimal spessoreZ;
+    @Column(name = "peso_pezzo")
+    private BigDecimal pesoPezzo;
+    @Column(name = "costo_pezzo_materiale")
+    private BigDecimal costoPezzoMateriale;
 
     public Long getTokenStepContent() {
         return tokenStepContent;
@@ -63,5 +73,45 @@ public class StepContent {
 
     public void setVolume(BigDecimal volume) {
         this.volume = volume;
+    }
+
+    public BigDecimal getLunghezzaX() {
+        return lunghezzaX;
+    }
+
+    public void setLunghezzaX(BigDecimal lunghezzaX) {
+        this.lunghezzaX = lunghezzaX;
+    }
+
+    public BigDecimal getLarghezzaY() {
+        return larghezzaY;
+    }
+
+    public void setLarghezzaY(BigDecimal larghezzaY) {
+        this.larghezzaY = larghezzaY;
+    }
+
+    public BigDecimal getSpessoreZ() {
+        return spessoreZ;
+    }
+
+    public void setSpessoreZ(BigDecimal spessoreZ) {
+        this.spessoreZ = spessoreZ;
+    }
+
+    public BigDecimal getPesoPezzo() {
+        return pesoPezzo;
+    }
+
+    public void setPesoPezzo(BigDecimal pesoPezzo) {
+        this.pesoPezzo = pesoPezzo;
+    }
+
+    public BigDecimal getCostoPezzoMateriale() {
+        return costoPezzoMateriale;
+    }
+
+    public void setCostoPezzoMateriale(BigDecimal costoPezzoMateriale) {
+        this.costoPezzoMateriale = costoPezzoMateriale;
     }
 }

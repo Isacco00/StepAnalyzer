@@ -18,6 +18,8 @@ public class StepContentBean implements Serializable {
     private BigDecimal spessoreZ;
     private BigDecimal volume;
     private BigDecimal perimetro;
+    private BigDecimal pesoPezzo;
+    private BigDecimal costoPezzoMateriale;
 
     public Long getTokenStepContent() {
         return tokenStepContent;
@@ -89,5 +91,21 @@ public class StepContentBean implements Serializable {
 
     public void setPerimetro(BigDecimal perimetro) {
         this.perimetro = perimetro;
+    }
+
+    public BigDecimal getPesoPezzo() {
+        return pesoPezzo;
+    }
+
+    public void setPesoPezzo(BigDecimal pesoPezzo) {
+        this.pesoPezzo = pesoPezzo;
+    }
+
+    public BigDecimal getCostoPezzoMateriale() {
+        return costoPezzoMateriale;
+    }
+
+    public void setCostoPezzoMateriale(BigDecimal costoPezzoMateriale) {
+        this.costoPezzoMateriale = costoPezzoMateriale;
     }
 }

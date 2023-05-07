@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import stepanalyzer.bean.MaterialBean;
 import stepanalyzer.bean.StepBean;
 import stepanalyzer.bean.StepContentBean;
 import stepanalyzer.bean.StepDetailBean;
@@ -13,13 +14,16 @@ import stepanalyzer.bean.stepcontent.Shapes;
 import stepanalyzer.bean.stepcontent.StepJsonBean;
 import stepanalyzer.entity.Step;
 import stepanalyzer.exception.ValidationException;
+import stepanalyzer.manager.MaterialManager;
 import stepanalyzer.manager.StepContentManager;
 import stepanalyzer.manager.StepManager;
 import stepanalyzer.mapper.StepDetailMapper;
 import stepanalyzer.mapper.StepMapper;
 import stepanalyzer.merger.StepDetailMerger;
+import stepanalyzer.repository.MaterialRepository;
 import stepanalyzer.repository.StepRepository;
 import stepanalyzer.request.bean.StepRequestBean;
+import stepanalyzer.utility.CalcUtility;
 import stepanalyzer.utility.CollectionUtils;
 import stepanalyzer.utility.FileUtility;
 
@@ -30,6 +34,8 @@ import stepanalyzer.utility.StepUtility;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
@@ -46,7 +52,11 @@ public class StepManagerImpl implements StepManager {
     @Inject
     StepUtility stepUtility;
     @Inject
+    CalcUtility calcUtility;
+    @Inject
     StepRepository stepRepository;
+    @Inject
+    MaterialManager materialManager;
     @Inject
     StepDetailMapper stepDetailMapper;
     @Inject
@@ -76,6 +86,7 @@ public class StepManagerImpl implements StepManager {
             bean = new StepDetailBean();
             bean.setTokenStep(0L);
             bean.setVersion(1);
+            bean.setMaterialeBean(materialManager.getDefaultMaterial());
         }
         bean.setFileName(fileName);
         bean.setAction("Calculating");
@@ -127,7 +138,7 @@ public class StepManagerImpl implements StepManager {
                 content.setTokenStepContent(0L);
             }
             content.setStepJsonBean(stepJsonBean);
-            this.setPerimeterAndVolume(content);
+            this.preliminaryCalculation(bean, content);
             bean.setStepContent(stepContentManager.saveStepContent(content));
             bean.setAction("Completed");
         } catch (Exception ex) {
@@ -162,12 +173,35 @@ public class StepManagerImpl implements StepManager {
         }
     }
 
-    private void setPerimeterAndVolume(StepContentBean bean) {
-        Model model = bean.getStepJsonBean().getModel();
+    private void preliminaryCalculation(StepDetailBean bean, StepContentBean content) {
+        Model model = content.getStepJsonBean().getModel();
         Shapes shape = model.getComponents().get(0).getShapes().get(0);
         Comparator<Mesh> byCoordinates = Comparator.comparingInt(e -> e.getCoordinates().size());
         List<Mesh> ordered = shape.getMesh().stream().sorted(byCoordinates.reversed()).toList();
-        bean.setPerimetro(ordered.get(0).getEdgePerimeter());
-        bean.setVolume(shape.getVolume());
+        content.setPerimetro(ordered.get(0).getEdgePerimeter());
+        content.setVolume(shape.getVolume());
+
+        BigDecimal x, y, z;
+        x = calcLength(model.getBoundingBox().getxMax(), model.getBoundingBox().getxMin());
+        y = calcLength(model.getBoundingBox().getyMax(), model.getBoundingBox().getyMin());
+        z = calcLength(model.getBoundingBox().getzMax(), model.getBoundingBox().getzMin());
+        content.setLunghezzaX(calcUtility.max(x, y, z));
+        content.setLarghezzaY(calcUtility.sumBigDecimalValues(x, y, z).subtract(calcUtility.max(x, y, z)).subtract(calcUtility.min(x, y, z)));
+        content.setSpessoreZ(calcUtility.min(x, y, z));
+
+        MaterialBean materialBean = bean.getMaterialeBean();
+        content.setPesoPezzo(calcUtility.multiply(materialBean.getPesoSpecifico(), content.getVolume()));
+        content.setCostoPezzoMateriale(calcUtility.multiply(content.getPesoPezzo(), materialBean.getCostoAlKg()));
+    }
+
+    private BigDecimal calcLength(BigDecimal x1, BigDecimal x2) {
+        BigDecimal zero = BigDecimal.ZERO;
+        if (x1.compareTo(zero) >= 0 && x2.compareTo(zero) >= 0) {
+            return x1.subtract(x2).setScale(2, RoundingMode.HALF_UP);
+        } else if (x1.compareTo(zero) < 0 && x2.compareTo(zero) < 0) {
+            return x1.abs().subtract(x2.abs()).setScale(2, RoundingMode.HALF_UP);
+        } else {
+            return x1.abs().add(x2.abs()).setScale(2, RoundingMode.HALF_UP);
+        }
     }
 }

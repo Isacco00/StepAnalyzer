@@ -3,6 +3,7 @@ package stepanalyzer.merger;
 import jakarta.inject.Inject;
 import org.springframework.stereotype.Component;
 import stepanalyzer.bean.StepDetailBean;
+import stepanalyzer.entity.Material;
 import stepanalyzer.entity.Step;
 import stepanalyzer.entity.StepContent;
 
@@ -17,6 +18,11 @@ public class StepDetailMerger extends AbstractMerger<StepDetailBean, Step> {
         if (bean.getStepContent() != null) {
             StepContent stepContent = repo.find(StepContent.class, bean.getStepContent().getTokenStepContent());
             entity.setStepContent(stepContent);
+        }
+
+        if (bean.getMaterialeBean() != null) {
+            Material material = repo.find(Material.class, bean.getMaterialeBean().getTokenMaterial());
+            entity.setMaterial(material);
         }
     }
 

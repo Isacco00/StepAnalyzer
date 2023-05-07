@@ -1,6 +1,7 @@
 package stepanalyzer.mapper;
 
 import org.springframework.stereotype.Component;
+import stepanalyzer.bean.MaterialBean;
 import stepanalyzer.bean.StepContentBean;
 import stepanalyzer.bean.StepDetailBean;
 import stepanalyzer.bean.StepContentBean;
@@ -20,6 +21,8 @@ public class StepDetailMapper extends AbstractMapper<Step, StepDetailBean> {
     private StepMapper stepMapper;
     @Inject
     private StepContentMapper stepContentMapper;
+    @Inject
+    private MaterialMapper materialMapper;
 
     protected StepDetailBean doMapping(Step entity) {
         return doMapping(new StepDetailBean(), entity);
@@ -32,7 +35,10 @@ public class StepDetailMapper extends AbstractMapper<Step, StepDetailBean> {
             StepContentBean stepContentBean = stepContentMapper.mapEntityToBean(entity.getStepContent());
             bean.setStepContent(stepContentBean);
         }
-
+        if (entity.getMaterial() != null) {
+            MaterialBean materialBean = materialMapper.mapEntityToBean(entity.getMaterial());
+            bean.setMaterialeBean(materialBean);
+        }
         return bean;
     }
 

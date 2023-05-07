@@ -21,6 +21,11 @@ public class StepContentMerger extends AbstractMerger<StepContentBean, StepConte
         }
         entity.setPerimetro(bean.getPerimetro());
         entity.setVolume(bean.getVolume());
+        entity.setLunghezzaX(bean.getLunghezzaX());
+        entity.setLarghezzaY(bean.getLarghezzaY());
+        entity.setSpessoreZ(bean.getSpessoreZ());
+        entity.setPesoPezzo(bean.getPesoPezzo());
+        entity.setCostoPezzoMateriale(bean.getCostoPezzoMateriale());
     }
 
 }
