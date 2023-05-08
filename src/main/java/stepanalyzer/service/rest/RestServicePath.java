@@ -6,4 +6,5 @@ public class RestServicePath {
     public static final String STEPCONVERTER = MAIN + "/stepConverter";
     public static final String STEPVIEWER = MAIN + "/stepViewer";
     public static final String WEBSOCKET = MAIN + "/websocket";
+    public static final String MATERIAL = MAIN + "/material";
 }
