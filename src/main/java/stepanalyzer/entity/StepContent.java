@@ -20,7 +20,7 @@ public class StepContent {
     private String json;
     @Column(name = "perimetro")
     private BigDecimal perimetro;
-    @Column(name = "volume")
+    @Column(name = "volume", precision = 19, scale = 3)
     private BigDecimal volume;
     @OneToOne(mappedBy = "stepContent")
     private Step step;
@@ -30,9 +30,9 @@ public class StepContent {
     private BigDecimal larghezzaY;
     @Column(name = "spessore_z")
     private BigDecimal spessoreZ;
-    @Column(name = "peso_pezzo")
+    @Column(name = "peso_pezzo", precision = 19, scale = 3)
     private BigDecimal pesoPezzo;
-    @Column(name = "costo_pezzo_materiale")
+    @Column(name = "costo_pezzo_materiale", precision = 19, scale = 1)
     private BigDecimal costoPezzoMateriale;
 
     public Long getTokenStepContent() {

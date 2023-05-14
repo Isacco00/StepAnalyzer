@@ -10,11 +10,11 @@ public class StepDetailBean extends StepBean implements Serializable {
     private StepContentBean stepContent;
     private MaterialBean materialBean;
 
-    public MaterialBean getMaterialeBean() {
+    public MaterialBean getMaterialBean() {
         return materialBean;
     }
 
-    public void setMaterialeBean(MaterialBean materialBean) {
+    public void setMaterialBean(MaterialBean materialBean) {
         this.materialBean = materialBean;
     }
 

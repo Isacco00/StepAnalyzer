@@ -6,6 +6,6 @@ import java.io.IOException;
 
 public interface StepContentManager {
 
-    StepContentBean saveStepContent(StepContentBean stepContentBean) throws IOException;
+    StepContentBean saveStepContent(StepContentBean stepContentBean);
 
 }

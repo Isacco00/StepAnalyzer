@@ -1,10 +1,8 @@
 package stepanalyzer.service.rest;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import stepanalyzer.bean.StepBean;
+import stepanalyzer.bean.StepDetailBean;
 
 import java.io.IOException;
 
@@ -14,5 +12,7 @@ public interface RestServiceStepViewer {
 
     @GetMapping("/getStepDetail/{token}")
     StepBean getStepDetail(@PathVariable("token") Long tokenStep) throws IOException;
+    @PostMapping("/calculateStepFile")
+    StepDetailBean calculateStepFile(@RequestBody StepDetailBean bean) throws IOException;
 
 }

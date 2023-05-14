@@ -20,7 +20,6 @@ import stepanalyzer.manager.StepManager;
 import stepanalyzer.mapper.StepDetailMapper;
 import stepanalyzer.mapper.StepMapper;
 import stepanalyzer.merger.StepDetailMerger;
-import stepanalyzer.repository.MaterialRepository;
 import stepanalyzer.repository.StepRepository;
 import stepanalyzer.request.bean.StepRequestBean;
 import stepanalyzer.utility.CalcUtility;
@@ -86,7 +85,7 @@ public class StepManagerImpl implements StepManager {
             bean = new StepDetailBean();
             bean.setTokenStep(0L);
             bean.setVersion(1);
-            bean.setMaterialeBean(materialManager.getDefaultMaterial());
+            bean.setMaterialBean(materialManager.getDefaultMaterial());
         }
         bean.setFileName(fileName);
         bean.setAction("Calculating");
@@ -95,7 +94,8 @@ public class StepManagerImpl implements StepManager {
     }
 
     @Override
-    public StepBean saveStep(StepDetailBean bean) {
+    public StepDetailBean saveStep(StepDetailBean bean) {
+        stepContentManager.saveStepContent(bean.getStepContent());
         bean.setUpdateTimestamp(OffsetDateTime.now());
         Step entity;
         if (bean.getTokenStep() == 0) {
@@ -108,7 +108,7 @@ public class StepManagerImpl implements StepManager {
             stepMerger.merge(bean, entity);
         }
         this.stepRepository.save(entity);
-        return stepMapper.mapEntityToBean(entity);
+        return stepDetailMapper.mapEntityToBean(entity);
     }
 
     @Override
@@ -131,15 +131,15 @@ public class StepManagerImpl implements StepManager {
     public StepBean processStepFile(@NotNull Long tokenStep) {
         StepDetailBean bean = this.getStepDetail(tokenStep);
         try {
-            StepJsonBean stepJsonBean = this.calculateStepFile(bean);
+            StepJsonBean stepJsonBean = this.preliminaryCalculateStepFile(bean);
             StepContentBean content = bean.getStepContent();
             if (content == null) {
                 content = new StepContentBean();
                 content.setTokenStepContent(0L);
             }
             content.setStepJsonBean(stepJsonBean);
-            this.preliminaryCalculation(bean, content);
-            bean.setStepContent(stepContentManager.saveStepContent(content));
+            this.calculateStepFile(bean, content);
+            bean.setStepContent(content);
             bean.setAction("Completed");
         } catch (Exception ex) {
             bean.setAction("Error");
@@ -147,8 +147,7 @@ public class StepManagerImpl implements StepManager {
         return this.saveStep(bean);
     }
 
-    @Override
-    public StepJsonBean calculateStepFile(StepDetailBean bean) {
+    private StepJsonBean preliminaryCalculateStepFile(StepDetailBean bean) {
         String desktopPath = System.getProperty("user.home") + "/Desktop";
         ProcessBuilder builder = new ProcessBuilder();
         builder.command(desktopPath + "/STPCalculator/bin/STPCalculator.exe",
@@ -173,7 +172,8 @@ public class StepManagerImpl implements StepManager {
         }
     }
 
-    private void preliminaryCalculation(StepDetailBean bean, StepContentBean content) {
+    @Override
+    public StepDetailBean calculateStepFile(@NotNull StepDetailBean bean, @NotNull StepContentBean content) {
         Model model = content.getStepJsonBean().getModel();
         Shapes shape = model.getComponents().get(0).getShapes().get(0);
         Comparator<Mesh> byCoordinates = Comparator.comparingInt(e -> e.getCoordinates().size());
@@ -189,9 +189,11 @@ public class StepManagerImpl implements StepManager {
         content.setLarghezzaY(calcUtility.sumBigDecimalValues(x, y, z).subtract(calcUtility.max(x, y, z)).subtract(calcUtility.min(x, y, z)));
         content.setSpessoreZ(calcUtility.min(x, y, z));
 
-        MaterialBean materialBean = bean.getMaterialeBean();
+        MaterialBean materialBean = bean.getMaterialBean();
         content.setPesoPezzo(calcUtility.multiply(materialBean.getPesoSpecifico(), content.getVolume()));
         content.setCostoPezzoMateriale(calcUtility.multiply(content.getPesoPezzo(), materialBean.getCostoAlKg()));
+
+        return this.saveStep(bean);
     }
 
     private BigDecimal calcLength(BigDecimal x1, BigDecimal x2) {

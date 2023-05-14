@@ -20,8 +20,8 @@ public class StepDetailMerger extends AbstractMerger<StepDetailBean, Step> {
             entity.setStepContent(stepContent);
         }
 
-        if (bean.getMaterialeBean() != null) {
-            Material material = repo.find(Material.class, bean.getMaterialeBean().getTokenMaterial());
+        if (bean.getMaterialBean() != null) {
+            Material material = repo.find(Material.class, bean.getMaterialBean().getTokenMaterial());
             entity.setMaterial(material);
         }
     }

@@ -19,7 +19,7 @@ public class Material {
     private String dimensioni;
     @Column(name = "spessore")
     private String spessore;
-    @Column(name = "peso_specifico")
+    @Column(name = "peso_specifico", precision = 19, scale = 2)
     private BigDecimal pesoSpecifico;
     @Column(name = "peso_specifico_costo")
     private BigDecimal pesoSpecificoCosto;

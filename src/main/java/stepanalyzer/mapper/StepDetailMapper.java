@@ -4,15 +4,9 @@ import org.springframework.stereotype.Component;
 import stepanalyzer.bean.MaterialBean;
 import stepanalyzer.bean.StepContentBean;
 import stepanalyzer.bean.StepDetailBean;
-import stepanalyzer.bean.StepContentBean;
-import stepanalyzer.bean.stepcontent.*;
 import stepanalyzer.entity.Step;
-import stepanalyzer.utility.StepUtility;
 
 import jakarta.inject.Inject;
-
-import java.util.Comparator;
-import java.util.List;
 
 @Component
 public class StepDetailMapper extends AbstractMapper<Step, StepDetailBean> {
@@ -37,7 +31,7 @@ public class StepDetailMapper extends AbstractMapper<Step, StepDetailBean> {
         }
         if (entity.getMaterial() != null) {
             MaterialBean materialBean = materialMapper.mapEntityToBean(entity.getMaterial());
-            bean.setMaterialeBean(materialBean);
+            bean.setMaterialBean(materialBean);
         }
         return bean;
     }
