@@ -22,11 +22,12 @@ public class Step {
     private long version;
     @Column(name = "update_timestamp")
     private OffsetDateTime updateTimestamp;
-    //bi-directional many-to-one association to StepContent
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "token_step_content")
     private StepContent stepContent;
-    //bi-directional many-to-one association to Materiale
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "token_costanti_calcolo_costi")
+    private CostantiCalcoloCosti costantiCalcoloCosti;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "token_material")
     private Material material;
@@ -85,5 +86,13 @@ public class Step {
 
     public void setUpdateTimestamp(OffsetDateTime updateTimestamp) {
         this.updateTimestamp = updateTimestamp;
+    }
+
+    public CostantiCalcoloCosti getCostantiCalcoloCosti() {
+        return costantiCalcoloCosti;
+    }
+
+    public void setCostantiCalcoloCosti(CostantiCalcoloCosti costantiCalcoloCosti) {
+        this.costantiCalcoloCosti = costantiCalcoloCosti;
     }
 }
