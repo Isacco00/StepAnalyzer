@@ -77,7 +77,7 @@ public class StepManagerImpl implements StepManager {
         stepRequestBean.setFileName(fileName);
         List<Step> filesFound = stepRepository.getStepList(stepRequestBean);
         StepDetailBean bean;
-        if (filesFound.size() != 0) {
+        if (!filesFound.isEmpty()) {
             Step step = CollectionUtils.getSingleElement(filesFound);
             bean = stepDetailMapper.mapEntityToBean(step);
             bean.setVersion(bean.getVersion() + 1);

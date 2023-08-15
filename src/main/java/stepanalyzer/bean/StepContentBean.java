@@ -18,6 +18,7 @@ public class StepContentBean implements Serializable {
     private BigDecimal spessoreZ;
     private BigDecimal volume;
     private BigDecimal perimetro;
+    private BigDecimal volumeAsportato;
     private BigDecimal pesoPezzo;
     private BigDecimal costoPezzoMateriale;
 
@@ -107,5 +108,13 @@ public class StepContentBean implements Serializable {
 
     public void setCostoPezzoMateriale(BigDecimal costoPezzoMateriale) {
         this.costoPezzoMateriale = costoPezzoMateriale;
+    }
+
+    public BigDecimal getVolumeAsportato() {
+        return volumeAsportato;
+    }
+
+    public void setVolumeAsportato(BigDecimal volumeAsportato) {
+        this.volumeAsportato = volumeAsportato;
     }
 }
