@@ -3,6 +3,7 @@ package stepanalyzer.entity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "material")
@@ -27,14 +28,14 @@ public class Material {
     private BigDecimal trasporto;
     @Column(name = "costoAlKg")
     private BigDecimal costoAlKg;
-    @OneToOne(mappedBy = "material")
-    private Step step;
+    @OneToMany(mappedBy = "material", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Step> step;
 
-    public Step getStep() {
+    public List<Step> getStep() {
         return step;
     }
 
-    public void setStep(Step step) {
+    public void setStep(List<Step> step) {
         this.step = step;
     }
 

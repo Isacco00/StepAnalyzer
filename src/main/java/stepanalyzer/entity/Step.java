@@ -13,7 +13,6 @@ public class Step {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STEP_TOKENSTEP_GENERATOR")
     @Column(name = "token_step")
     private Long tokenStep;
-
     @Column(name = "fileName", nullable = false)
     private String fileName;
     @Column(name = "action")
@@ -28,7 +27,7 @@ public class Step {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "token_costanti_calcolo_costi")
     private CostantiCalcoloCosti costantiCalcoloCosti;
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "token_material")
     private Material material;
 

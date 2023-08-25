@@ -95,7 +95,9 @@ public class StepManagerImpl implements StepManager {
 
     @Override
     public StepDetailBean saveStep(StepDetailBean bean) {
-        stepContentManager.saveStepContent(bean.getStepContent());
+        if(bean.getStepContent() != null){
+            bean.setStepContent(stepContentManager.saveStepContent(bean.getStepContent()));
+        }
         bean.setUpdateTimestamp(OffsetDateTime.now());
         Step entity;
         if (bean.getTokenStep() == 0) {
