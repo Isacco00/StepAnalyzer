@@ -181,7 +181,7 @@ public class StepManagerImpl implements StepManager {
         Comparator<Mesh> byCoordinates = Comparator.comparingInt(e -> e.getCoordinates().size());
         List<Mesh> ordered = shape.getMesh().stream().sorted(byCoordinates.reversed()).toList();
         content.setPerimetro(ordered.get(0).getEdgePerimeter());
-        content.setVolume(shape.getVolume());
+        content.setVolume(shape.getVolume().divide(BigDecimal.valueOf(1000)));
 
         BigDecimal x, y, z;
         x = calcLength(model.getBoundingBox().getxMax(), model.getBoundingBox().getxMin());
