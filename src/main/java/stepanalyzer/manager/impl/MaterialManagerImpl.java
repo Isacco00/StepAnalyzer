@@ -71,4 +71,29 @@ public class MaterialManagerImpl implements MaterialManager {
             throw new EntityNotFoundException("Material not found");
         }
     }
+
+    @Override
+    public void importMaterialsFromFile(MultipartFile formData) throws IOException {
+        /*
+        String fileName = new File(Objects.requireNonNull(formData.getOriginalFilename())).getName();
+        StepRequestBean stepRequestBean = new StepRequestBean();
+        stepRequestBean.setFileName(fileName);
+        List<Step> filesFound = stepRepository.getStepList(stepRequestBean);
+        StepDetailBean bean;
+        if (!filesFound.isEmpty()) {
+            Step step = CollectionUtils.getSingleElement(filesFound);
+            bean = stepDetailMapper.mapEntityToBean(step);
+            bean.setVersion(bean.getVersion() + 1);
+        } else {
+            bean = new StepDetailBean();
+            bean.setTokenStep(0L);
+            bean.setVersion(1);
+            bean.setMaterialBean(materialManager.getDefaultMaterial());
+        }
+        bean.setFileName(fileName);
+        bean.setAction("Calculating");
+        fileUtility.storeFile(formData, bean);
+        return this.saveStep(bean);
+        */
+    }
 }

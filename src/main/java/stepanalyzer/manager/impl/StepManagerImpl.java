@@ -95,7 +95,7 @@ public class StepManagerImpl implements StepManager {
 
     @Override
     public StepDetailBean saveStep(StepDetailBean bean) {
-        if(bean.getStepContent() != null){
+        if (bean.getStepContent() != null) {
             bean.setStepContent(stepContentManager.saveStepContent(bean.getStepContent()));
         }
         bean.setUpdateTimestamp(OffsetDateTime.now());
@@ -181,18 +181,18 @@ public class StepManagerImpl implements StepManager {
         Comparator<Mesh> byCoordinates = Comparator.comparingInt(e -> e.getCoordinates().size());
         List<Mesh> ordered = shape.getMesh().stream().sorted(byCoordinates.reversed()).toList();
         content.setPerimetro(ordered.get(0).getEdgePerimeter());
-        content.setVolume(shape.getVolume().divide(BigDecimal.valueOf(1000)));
+        content.setVolume(shape.getVolume());
 
         BigDecimal x, y, z;
-        x = calcLength(model.getBoundingBox().getxMax(), model.getBoundingBox().getxMin());
-        y = calcLength(model.getBoundingBox().getyMax(), model.getBoundingBox().getyMin());
-        z = calcLength(model.getBoundingBox().getzMax(), model.getBoundingBox().getzMin());
+        x = calcLength(model.getBoundingBox().getxMax(), model.getBoundingBox().getxMin()).abs();
+        y = calcLength(model.getBoundingBox().getyMax(), model.getBoundingBox().getyMin()).abs();
+        z = calcLength(model.getBoundingBox().getzMax(), model.getBoundingBox().getzMin()).abs();
         content.setLunghezzaX(calcUtility.max(x, y, z));
         content.setLarghezzaY(calcUtility.sumBigDecimalValues(x, y, z).subtract(calcUtility.max(x, y, z)).subtract(calcUtility.min(x, y, z)));
         content.setSpessoreZ(calcUtility.min(x, y, z));
 
         MaterialBean materialBean = bean.getMaterialBean();
-        content.setPesoPezzo(calcUtility.multiply(materialBean.getPesoSpecifico(), content.getVolume()));
+        content.setPesoPezzo(calcUtility.divide(calcUtility.multiply(materialBean.getPesoSpecifico(), content.getVolume()), BigDecimal.valueOf(1000000)));
         content.setCostoPezzoMateriale(calcUtility.multiply(content.getPesoPezzo(), materialBean.getCostoAlKg()));
 
         return this.saveStep(bean);

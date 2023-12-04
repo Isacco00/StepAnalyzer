@@ -23,4 +23,9 @@ public class RestServiceMaterialImpl implements RestServiceMaterial {
     public List<MaterialBean> getMaterialList() {
         return materialManager.getMaterialList();
     }
+
+    @Override
+    public void importMaterialsFromFile(MultipartFile formData) throws IOException {
+        materialManager.importMaterialsFromFile(formData);
+    }
 }
