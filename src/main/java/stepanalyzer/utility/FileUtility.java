@@ -46,7 +46,7 @@ public class FileUtility {
         String extension = "", name = "";
         int i = fileName.lastIndexOf('.');
         if (i > 0) {
-            extension = fileName.substring(i + 1);
+            extension = fileName.substring(i + 1).toLowerCase();
             name = fileName.substring(0, i);
         }
         if (!Arrays.asList("stp", "step").contains(extension) || fileName.contains("..")) {
